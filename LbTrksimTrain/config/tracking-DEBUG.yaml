@@ -1,0 +1,454 @@
+context:
+  Exploratory script and configuration 
+
+
+datasets:
+
+################################################################################
+  Lamarr:
+################################################################################
+    title: Fast-sim data
+    treename: LamarrTuningTuple/LamarrTree_mc
+    files:
+      - /pclhcb06/landerli/TrackingParametrization/data/GaussTupleForLucio.root
+    #entrysteps: 10000  ## Fit this to the (fast) RAM of your machine 
+
+    baseline_cut:
+      - qop_EndVelo != p_EndVelo 
+
+    cached_counts:
+      all: 0
+
+
+    variables:
+      x: mc_x
+      y: mc_y
+      z: mc_z
+      tx: mc_tx
+      ty: mc_ty
+      px: mc_px
+      py: mc_py
+      pz: mc_pz
+      OVtx: mc_vertexType 
+      MVtx: mc_motherVertexType 
+      PVtx: mc_primaryVertexType 
+      x_EndVelo: x_EndVelo
+      y_EndVelo: y_EndVelo
+      p_EndVelo: p_EndVelo
+      eta_EndVelo: eta_EndVelo
+      x_EndT: x_EndT
+      y_EndT: y_EndT
+      p_EndT: p_EndT
+      eta_EndT: eta_EndT
+      x_BegRich2: x_BegRich2
+      y_BegRich2: y_BegRich2
+      p_BegRich2: p_BegRich2
+      eta_BegRich2: eta_BegRich2
+      x_EndRich1: x_EndRich1
+      y_EndRich1: y_EndRich1
+      p_EndRich1: p_EndRich1
+      eta_EndRich1: eta_EndRich1
+      x_ClosestToBeam: x_ClosestToBeam
+      y_ClosestToBeam: y_ClosestToBeam
+      p_ClosestToBeam: p_ClosestToBeam
+      eta_ClosestToBeam: eta_ClosestToBeam
+
+       
+################################################################################
+  BrunelRecoed:
+################################################################################
+    title: Detailed-simulation data
+    treename: TrackEffRes/TrackTree_recoed
+
+    baseline_cut: 
+      - true_pz_ClosestToBeam > 0.01
+      - true_pz_ClosestToBeam < 1000000
+      - true_eta_ClosestToBeam > 0.5
+      - true_eta_ClosestToBeam < 10
+      #      - hasVelo 
+      #      - hasT
+      #      - hasTT
+        #- type == 3
+        #
+
+
+    variables:
+      type: type
+      x_EndVelo: true_x_EndVelo
+      y_EndVelo: true_y_EndVelo
+      p_EndVelo: true_p_EndVelo
+      eta_EndVelo: true_eta_EndVelo
+      x_EndT: true_x_EndT
+      y_EndT: true_y_EndT
+      p_EndT: true_p_EndT
+      eta_EndT: true_eta_EndT
+      x_BegRich2: true_x_BegRich2
+      y_BegRich2: true_y_BegRich2
+      p_BegRich2: true_p_BegRich2
+      eta_BegRich2: true_eta_BegRich2
+      x_EndRich1: true_x_EndRich1
+      y_EndRich1: true_y_EndRich1
+      p_EndRich1: true_p_EndRich1
+      eta_EndRich1: true_eta_EndRich1
+      x_ClosestToBeam: true_x_ClosestToBeam
+      y_ClosestToBeam: true_y_ClosestToBeam
+      z_ClosestToBeam: true_z_ClosestToBeam
+      tx_ClosestToBeam: true_tx_ClosestToBeam
+      ty_ClosestToBeam: true_ty_ClosestToBeam
+      px: true_px_ClosestToBeam
+      py: true_py_ClosestToBeam
+      pz: true_pz_ClosestToBeam
+      p_ClosestToBeam: true_p_ClosestToBeam
+      eta_ClosestToBeam: true_eta_ClosestToBeam
+      reco_x:  x_ClosestToBeam
+      reco_y:  y_ClosestToBeam
+      reco_z:  z_ClosestToBeam
+      reco_tx: tx_ClosestToBeam
+      reco_ty: ty_ClosestToBeam
+      reco_px: px_ClosestToBeam
+      reco_py: py_ClosestToBeam
+      reco_pz: pz_ClosestToBeam
+      reco_p:  p_ClosestToBeam
+      cov_ClosestToBeam: cov_ClosestToBeam
+      likelihood: likelihood
+      chi2PerDoF: chi2PerDoF
+      nDoF:       nDoF
+      ghostProb:  ghostProb
+
+            
+           
+################################################################################
+  BrunelGenerated:
+################################################################################
+    title: Gen-level data
+    treename: TrackEffRes/TrackTree_mc
+
+    baseline_cut:
+      - acceptance <= 1
+      - mc_pz > 0.01
+      - mc_pz < 1000000
+      - eta_ClosestToBeam > 0.5
+      - eta_ClosestToBeam < 10
+
+    variables:
+      type: type
+      acceptance: acceptance 
+      reconstructible: reconstructible
+      reconstructed: reconstructed
+      x: mc_x
+      y: mc_y
+      z: mc_z
+      tx: mc_tx
+      ty: mc_ty
+      px: mc_px
+      py: mc_py
+      pz: mc_pz
+      OVtx: mc_vertexType 
+      MVtx: mc_motherVertexType 
+      PVtx: mc_primaryVertexType 
+      x_EndVelo: x_EndVelo
+      y_EndVelo: y_EndVelo
+      p_EndVelo: p_EndVelo
+      eta_EndVelo: eta_EndVelo
+      x_EndT: x_EndT
+      y_EndT: y_EndT
+      p_EndT: p_EndT
+      eta_EndT: eta_EndT
+      x_BegRich2: x_BegRich2
+      y_BegRich2: y_BegRich2
+      p_BegRich2: p_BegRich2
+      eta_BegRich2: eta_BegRich2
+      x_EndRich1: x_EndRich1
+      y_EndRich1: y_EndRich1
+      p_EndRich1: p_EndRich1
+      eta_EndRich1: eta_EndRich1
+      x_ClosestToBeam: x_ClosestToBeam
+      y_ClosestToBeam: y_ClosestToBeam
+      p_ClosestToBeam: p_ClosestToBeam
+      eta_ClosestToBeam: eta_ClosestToBeam
+
+
+
+ 
+
+################################################################################
+# Definition of the track categories
+################################################################################
+categories:
+  fromPV:
+    - OVtx < 2 
+
+  fromDecay:
+    - OVtx == 2 
+
+
+################################################################################
+# Definition of the most used variables
+################################################################################
+variables:
+  x: 
+    title: "x coordinate"
+    unit: mm 
+    binning: [100, 0, 2] 
+  y: 
+    title: "y coordinate"
+    unit: mm 
+    binning: [100, -1, 1] 
+  z: 
+    title: "z coordinate"
+    unit: mm 
+    binning: [100, -250, 250] 
+  tx:
+    title: 'tx'
+    binning: [100, -1.5, 1.5]
+  ty:
+    title: 'ty'
+    binning: [100, -1.5, 1.5] 
+  pz:
+    title: 'Longitudinal momentum'
+    unit:  MeV/c
+    binning: [200, 0, 150000] 
+  logpz:
+    title: '$\log_{10}$ (Longitudinal momentum/1 MeV) '
+    formula: "log(pz)/log(10)"
+    binning: [100, -2, 8] 
+
+      
+################################################################################
+# Definition of the states
+################################################################################
+states:
+  EndVelo:
+    binning: [101, -750, 750]
+
+  EndT:
+    binning: [101, -15000, 15000]
+
+  BegRich2:
+    binning: [101, -5000, 5000]
+  
+  EndRich1:
+    binning: [101, -2000, 2000]
+
+  ClosestToBeam:
+    binning: [101, -40, 40]
+
+################################################################################
+## Acceptance BDT 
+################################################################################
+acceptanceBDT:
+  discrVars:
+    - x_EndVelo 
+    - y_EndVelo
+    - p_EndVelo
+    - eta_EndVelo
+    - x_EndT 
+    - y_EndT
+    - p_EndT
+    - eta_EndT
+
+  learning_rate: 0.1
+  nEpochs: 2
+  #nEpochs: 120
+  subsample: 0.001
+  max_depth: 14
+
+
+
+################################################################################
+## Efficency BDT 
+################################################################################
+efficiencyBDT:
+  numFiles: 2
+  discrVars:
+    - x_EndVelo 
+    - y_EndVelo
+    - p_EndVelo
+    - eta_EndVelo
+    - x_EndT 
+    - y_EndT
+    - p_EndT
+    - eta_EndT
+
+  learning_rate: 0.05
+  nEpochs: 2
+  #nEpochs: 120
+  subsample: 0.5
+  max_depth: 14
+
+
+################################################################################
+## Resolution GAN 
+################################################################################
+resolutionGAN:
+  discrVars:
+    - x_ClosestToBeam
+    - y_ClosestToBeam
+    - tx_ClosestToBeam
+    - ty_ClosestToBeam
+    - log(p_ClosestToBeam)/log(10)
+
+  targetVars:
+    - reco_x - x_ClosestToBeam
+    - reco_y - y_ClosestToBeam
+    - reco_tx - tx_ClosestToBeam
+    - reco_ty - ty_ClosestToBeam
+    - reco_p - p_ClosestToBeam
+    - likelihood
+    - chi2PerDoF
+    - nDoF
+    - ghostProb
+      #    - cov_ClosestToBeam_0_0
+      #    - cov_ClosestToBeam_0_1
+      #    - cov_ClosestToBeam_0_2
+      #    - cov_ClosestToBeam_0_3
+      #    - cov_ClosestToBeam_0_4
+      #      #    - cov_ClosestToBeam_1_0
+      #    - cov_ClosestToBeam_1_1
+      #    - cov_ClosestToBeam_1_2
+      #    - cov_ClosestToBeam_1_3
+      #    - cov_ClosestToBeam_1_4
+      #      #    - cov_ClosestToBeam_2_0
+      #      #    - cov_ClosestToBeam_2_1
+      #    - cov_ClosestToBeam_2_2
+      #    - cov_ClosestToBeam_2_3
+      #    - cov_ClosestToBeam_2_4
+      #      #    - cov_ClosestToBeam_3_0
+      #      #    - cov_ClosestToBeam_3_1
+      #      #    - cov_ClosestToBeam_3_2
+      #    - cov_ClosestToBeam_3_3
+      #    - cov_ClosestToBeam_3_4
+      #      #    - cov_ClosestToBeam_4_0
+      #      #    - cov_ClosestToBeam_4_1
+      #      #    - cov_ClosestToBeam_4_2
+      #      #    - cov_ClosestToBeam_4_3
+      #    - cov_ClosestToBeam_4_4
+
+  ## Variables artificially symmetrized to avoid hard boundaries 
+  symVars: []
+    #    - cov_ClosestToBeam_0_0
+    #    - cov_ClosestToBeam_1_1
+    #    - cov_ClosestToBeam_2_2
+    #    - cov_ClosestToBeam_3_3
+    #    - cov_ClosestToBeam_4_4
+     
+  ## Variables smoothed adding a random number in [0,1) 
+  intVars:
+    - nDoF 
+       
+  cuts:
+        - x_ClosestToBeam != 0. 
+        - y_ClosestToBeam != 0. 
+    #    - z_ClosestToBeam != 0. 
+
+  generator_learning_rate: 1e-5
+  discriminator_learning_rate: 1e-5
+  wreferee: 0.1
+
+  nRandomNodes: 128
+
+  ## Generator architecture 
+  n_generator_layers: 8
+  n_generator_nodes: 128
+
+  ## Discriminator architecture 
+  n_discriminator_layers: 8
+  n_discriminator_nodes: 128
+
+  ## Disk-resident data 
+  nChunks: 1000
+    #
+  ## Ram-resident data : 
+  chunksize:    1000000
+  nIterations:  100
+  batchsize: 10000
+  ## 
+  outlayerBeyondThreshold: 0.001 ## Will ignore up to this fraction of the data 
+                                ## as outlayers 
+
+
+################################################################################
+## Covariance GAN 
+################################################################################
+covarianceGAN:
+  discrVars:
+    - x_ClosestToBeam
+    - y_ClosestToBeam
+    - tx_ClosestToBeam
+    - ty_ClosestToBeam
+    - log(p_ClosestToBeam)/log(10)
+    - likelihood
+    - nDoF
+
+  targetVars:
+    - log(cov_ClosestToBeam_0_0)
+    - cov_ClosestToBeam_0_1
+    - cov_ClosestToBeam_0_2
+    - cov_ClosestToBeam_0_3
+    - cov_ClosestToBeam_0_4
+      #    - cov_ClosestToBeam_1_0
+    - log(cov_ClosestToBeam_1_1)
+    - cov_ClosestToBeam_1_2
+    - cov_ClosestToBeam_1_3
+    - cov_ClosestToBeam_1_4
+      #    - cov_ClosestToBeam_2_0
+      #    - cov_ClosestToBeam_2_1
+    - log(cov_ClosestToBeam_2_2)
+    - cov_ClosestToBeam_2_3
+    - cov_ClosestToBeam_2_4
+      #    - cov_ClosestToBeam_3_0
+      #    - cov_ClosestToBeam_3_1
+      #    - cov_ClosestToBeam_3_2
+    - log(cov_ClosestToBeam_3_3)
+    - cov_ClosestToBeam_3_4
+      #    - cov_ClosestToBeam_4_0
+      #    - cov_ClosestToBeam_4_1
+      #    - cov_ClosestToBeam_4_2
+      #    - cov_ClosestToBeam_4_3
+    - log(cov_ClosestToBeam_4_4)
+
+  ## Variables artificially symmetrized to avoid hard boundaries 
+  symVars: []
+    #    - cov_ClosestToBeam_0_0
+    #    - cov_ClosestToBeam_1_1
+    #    - cov_ClosestToBeam_2_2
+    #    - cov_ClosestToBeam_3_3
+    #    - cov_ClosestToBeam_4_4
+     
+  ## Variables smoothed adding a random number in [0,1) 
+  intVars:
+    - nDoF 
+       
+  cuts:
+        - x_ClosestToBeam != 0. 
+        - y_ClosestToBeam != 0. 
+    #    - z_ClosestToBeam != 0. 
+
+  generator_learning_rate: 1e-5
+  discriminator_learning_rate: 1e-5
+  wreferee: 100
+
+  nRandomNodes: 128
+
+  ## Generator architecture 
+  n_generator_layers: 10
+  n_generator_nodes: 256
+
+  ## Discriminator architecture 
+  n_discriminator_layers: 8
+  n_discriminator_nodes: 256
+
+  ## Disk-resident data 
+  nChunks: 5000
+    #
+  ## Ram-resident data : 
+  chunksize:    1000000
+  nIterations:  100
+  batchsize: 1000
+  ## 
+  outlayerBeyondThreshold: 0.001 ## Will ignore up to this fraction of the data 
+                                ## as outlayers 
+
+
+
+

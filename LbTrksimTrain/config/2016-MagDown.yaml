@@ -1,0 +1,19 @@
+################################################################################
+## 2016 Magnet Down configuration
+################################################################################
+
+datasets:
+  Lamarr:
+    files:
+      - /pclhcb06/landerli/TrackingParametrization/data/GaussTupleForLucio.root
+       
+  BrunelRecoed:
+    files:
+      #- /pclhcb06/landerli/TrackingParametrization/data/trackRes_10000000_2016_MagDown.root
+      - /pclhcb06/landerli/TrackingParametrization/data/unmerged/53/*/trackRes_10000000_2016_MagDown.root
+
+           
+  BrunelGenerated:
+    files:
+      - /pclhcb06/landerli/TrackingParametrization/data/unmerged/53/*/trackRes_10000000_2016_MagDown.root
+
