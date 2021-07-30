@@ -52,11 +52,11 @@ setup(
     python_requires='>=3.6, <4',
 
     install_requires=[
-#      'numpy', 
-#      'scipy', 
-#      'scikit-learn', 
-#      'tensorflow',
-#      'keras',
+      'numpy', 
+      'scipy', 
+      'scikit-learn', 
+      'tensorflow',
+      'keras',
       'scikinC[keras]>=0.1',
       'html-reports>=0.2',
     ],  # Optional
