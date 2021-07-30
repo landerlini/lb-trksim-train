@@ -28,11 +28,13 @@ RUN conda run pip install --quiet \
 
 RUN conda run pip install --quiet scikinC
 
+ENV USER='Dockerman'
+
 CMD git clone -b fastfortests git@github.com:landerlini/lb-trksim-train.git trk \
     && git clone -b test git@github.com:mbarbetti/lb-pidgan-train.git pid \
     && pip install scipy==1.4.1 \
     && echo "### INSTALLING ###" \ 
-    && python trk/setup.py install  \
+    && cd trk && python setup.py bdist_wheel && pip install dist/*.whl && cd / \
     && echo "### LAUNCHING ###" \ 
     && snakemake -s trk/Snakefile -j 32 compile_2016-MagUp   \
     && echo "### DONE ###"  

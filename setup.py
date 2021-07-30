@@ -54,6 +54,7 @@ setup(
     install_requires=[
       'numpy', 
       'scipy', 
+      'matplotlib', 
       'scikit-learn', 
       'tensorflow',
       'keras',
