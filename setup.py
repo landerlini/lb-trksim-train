@@ -56,7 +56,7 @@ setup(
       'scipy', 
       'scikit-learn', 
       'scikinC[keras]>=0.1',
-      'tensorflow>=2.3',
+      'tensorflow',
       'keras',
       'html-reports>=0.2',
     ],  # Optional
