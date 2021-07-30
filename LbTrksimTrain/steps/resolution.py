@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import tensorflow as tf
 from scipy.optimize import curve_fit
-from iminuit import minimize
 
 from LbTrksimTrain.core import Configuration
 from LbTrksimTrain.core import Dataset
