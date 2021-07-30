@@ -2,6 +2,7 @@ import argparse
 from datetime import datetime
 from logging import getLogger as logger
 from functools import partial
+import os.path
 
 import pandas as pd
 import numpy as np
@@ -72,7 +73,8 @@ def train_one_type(cfg, report, modeldir=None, tracktype=3):
       del myGan.transformerY_
 
     largedset = Dataset.get(cfg.datasets['BrunelRecoed'], "type==%d" % tracktype,
-                            max_files={3: 5, 4: 50, 5: 1000}[tracktype]
+                            #max_files={3: 5, 4: 50, 5: 1000}[tracktype]
+                            max_files=1
                             )
 
     X, Y = gan_utils.getData(cfg.resolutionGAN, largedset, tracktype)
@@ -167,8 +169,8 @@ def validate(cfg, report, modeldir):
         report.add_markdown("# Validation for %s tracks" % tracktypename)
         gan = GanModel.GanModel.load(os.path.join(modeldir, tracktypename.lower()))
         recoed = Dataset.get(cfg.datasets['BrunelRecoed'], "type==%d" % tracktype,
-                             #max_files=10,
-                             max_files = {3: 5, 4:50, 5:1000}[tracktype]
+                             max_files=1,
+                             #max_files = {3: 5, 4:50, 5:1000}[tracktype]
                              )
 
         print(tracktypename, "# entries:", len(recoed))
