@@ -9,7 +9,11 @@ OUTDIR = BASEDIR / 'results'
 MODELDIR = OUTDIR / 'models'
 GENCDIR = OUTDIR / 'generatedC' 
 EXPORTDIR = OUTDIR / 'compiledC' 
+CPIPELINES = BASEDIR / 'exporters' / 'cpipelines' 
 
+COMMONCFG = [
+      CONFIGDIR / "tracking-DEBUG.yaml", 
+  ]
 
 slots = ["2016-MagDown", "2016-MagUp"] 
 types = ["long", "upstream", "downstream"]
@@ -20,8 +24,7 @@ types = ["long", "upstream", "downstream"]
 ################################################################################
 rule accTrain:
   input:
-    config = [
-      CONFIGDIR / "tracking-DEBUG.yaml", 
+    config = COMMONCFG + [
       CONFIGDIR / "{slot}.yaml"
     ]
 
@@ -37,13 +40,12 @@ rule accTrain:
     " -F {input.config}"
     " -r {params.report}"
     " -m {output}"
-    "> {log}"
+    " > {log}"
 
 
 rule accValidate:
   input:
-    config = [
-      CONFIGDIR / "tracking-DEBUG.yaml", 
+    config = COMMONCFG + [
       CONFIGDIR / "validation.yaml", 
       CONFIGDIR / "{slot}.yaml"
     ],
@@ -58,7 +60,7 @@ rule accValidate:
     " -F {input.config}"
     " -r {output}"
     " -m {input.model}"
-    "> {log}"
+    " > {log}"
 
 
 rule accConvert:
@@ -84,8 +86,7 @@ rule accCompile:
 ################################################################################
 rule effTrain:
   input:
-    config = [
-      CONFIGDIR/"tracking-DEBUG.yaml", 
+    config = COMMONCFG + [
       CONFIGDIR/"{slot}.yaml"
     ]
 
@@ -104,13 +105,12 @@ rule effTrain:
     " -r {params.report}"
     " -j {threads}"
     " -m {output}"
-    "> {log}"
+    "  > {log}"
 
 
 rule effValidate:
   input:
-    config = [
-      CONFIGDIR/"tracking-DEBUG.yaml", 
+    config = COMMONCFG + [
       CONFIGDIR/"validation.yaml", 
       CONFIGDIR/"{slot}.yaml"
     ],
@@ -128,7 +128,7 @@ rule effValidate:
     " -r {output}"
     " -j {threads}"
     " -m {input.model}"
-    "> {log}"
+    " > {log}"
 
 
 rule effConvert:
@@ -156,184 +156,186 @@ rule effCompile:
 
 rule resTrain:
   input:
-    config = [
-      "LbTrksimTrain/config/tracking.yaml", 
-      "LbTrksimTrain/config/{slot}.yaml"
+    config = COMMONCFG + [
+      CONFIGDIR/"{slot}.yaml"
     ]
 
 
-  log: "LbTrksimTrain/log/resTrain_{slot}.log" 
+  log: LOGDIR/"resTrain_{slot}.log" 
 
   output: 
-    directory('resolution_{slot}')
+    directory(MODELDIR/'resolution_{slot}')
+
+  params:
+    report = lambda w: REPORTDIR/f"resolution_{w['slot']}.html"
 
   threads: 18
 
   shell:
     "python3 -m LbTrksimTrain resTrain"
     " -F {input.config}"
-    " -R LbTrksimTrain/reports"
+    " -r {params.report}"
     " -m {output}"
     " -j {threads}"
-    "> {log}"
+    " > {log}"
 
 
 rule resValidation:
   input: 
-    model = 'resolution_{slot}', 
-    config = [
-      "LbTrksimTrain/config/tracking.yaml", 
-      "LbTrksimTrain/config/validation.yaml",
-      "LbTrksimTrain/config/{slot}.yaml",
+    model = MODELDIR/'resolution_{slot}', 
+    config = COMMONCFG + [
+      CONFIGDIR/"validation.yaml",
+      CONFIGDIR/"{slot}.yaml",
     ]
 
-  output: "LbTrksimTrain/reports/resValidate_{slot}.html" 
+  output: REPORTDIR/"resValidate_{slot}.html" 
 
   threads: 18
 
-  log: "LbTrksimTrain/log/resValidate_{slot}.log" 
+  log: LOGDIR/"resValidate_{slot}.log" 
     
 
   shell:
     "python3 -m LbTrksimTrain resValidate"
     " -F {input.config}"
-    " -R LbTrksimTrain/reports"
-    " -o {input.model}"
+    " -r {output}"
+    " -m {input.model}"
     " -j {threads}"
-    "> {log}"
+    " > {log}"
 
 
 rule resConvert:
-  input: 'resolution-{type}_{slot}'
+  input: MODELDIR/'resolution_{slot}'
   
-  output: 'generatedC/resolution-{type}_{slot}.C'
+  output: GENCDIR/'resolution_{slot}_{type}.C'
   
   shell: 
-    "scikinC res{wildcards.type}={input} > {output};"
+    "scikinC res{wildcards.type}={input}/{wildcards.type} > {output};"
 
 
 rule resConvertPreprocessing:
-  input: 'resolution-{type}_{slot}/transformer{XY}_'
+  input: MODELDIR/'resolution_{slot}'
   
-  output: 'generatedC/resolution-{type}_{slot}-t{XY}.C'
+  output: GENCDIR/'resolution-t{XY}_{slot}_{type}.C'
+
+  params:
+    pythonpath = BASEDIR.parents[0]
   
   shell: 
-    "scikinC res{wildcards.type}_t{wildcards.XY}={input} > {output};"
-
+    "PYTHONPATH={params.pythonpath} "
+    "scikinC res{wildcards.type}_t{wildcards.XY}={input}/{wildcards.type}/transformer{wildcards.XY}_ > {output};"
 
 
 rule resCompile:
   input: 
-    "cpipelines/resolution.C",
-    expand("generatedC/resolution-{type}_{slot}.C", type=types, allow_missing=True),
-    expand("generatedC/resolution-{type}_{slot}-tX.C", type=types, allow_missing=True),
-    expand("generatedC/resolution-{type}_{slot}-tY.C", type=types, allow_missing=True),
+    CPIPELINES/"resolution.C",
+    expand(GENCDIR/"resolution_{slot}_{type}.C", type=types, allow_missing=True),
+    expand(GENCDIR/"resolution-tX_{slot}_{type}.C", type=types, allow_missing=True),
+    expand(GENCDIR/"resolution-tY_{slot}_{type}.C", type=types, allow_missing=True),
 
   output: 
-    "compiledC/resolution_{slot}.so"
+    EXPORTDIR/"resolution_{slot}.so"
 
   shell:
     "gcc -o {output} {input} -shared -fPIC -Ofast"
 
 
 
+################################################################################
+##  C O V A R I A N C E
+################################################################################
+
 rule covTrain:
   input:
-    config = [
-      "LbTrksimTrain/config/tracking.yaml", 
-      "LbTrksimTrain/config/{slot}.yaml"
+    config = COMMONCFG + [
+      CONFIGDIR/"{slot}.yaml"
     ]
 
 
-  log: "LbTrksimTrain/log/covTrain_{slot}.log" 
+  log: LOGDIR/"covTrain_{slot}.log" 
 
   output: 
-    directory('covariance_{slot}')
+    directory(MODELDIR/'covariance_{slot}')
+
+  params:
+    report = lambda w: REPORTDIR/f"resolution_{w['slot']}.html"
 
   shell:
     "python3 -m LbTrksimTrain covTrain"
     " -F {input.config}"
-    " -R LbTrksimTrain/reports"
+    " -r {params.report}"
     " -m {output}"
-    "> {log}"
+    " > {log}"
 
 
 rule covValidation:
   input: 
-    config = [
-      "LbTrksimTrain/config/tracking.yaml", 
-      "LbTrksimTrain/config/validation.yaml",
-      "LbTrksimTrain/config/{slot}.yaml",
+    config = COMMONCFG + [
+      CONFIGDIR/"validation.yaml",
+      CONFIGDIR/"{slot}.yaml",
       ],
-    model = 'covariance_{slot}'
+    model = MODELDIR/'covariance_{slot}'
 
-  output: "LbTrksimTrain/reports/{slot}-covValidate.html" 
+  output: REPORTDIR/"covValidate_{slot}.html" 
 
-  log: "LbTrksimTrain/log/covValidate_{slot}.log" 
+  log: LOGDIR/"covValidate_{slot}.log" 
     
 
   shell:
     "python3 -m LbTrksimTrain covValidate"
     " -F {input.config}"
-    " -R LbTrksimTrain/reports"
+    " -r {output}"
     " -m {input.model}"
-    "> {log}"
+    " > {log}"
 
 
 rule covConvert:
-  input: 'covariance-{type}_{slot}'
+  input: MODELDIR/'covariance_{slot}'
   
-  output: 'generatedC/covariance-{type}_{slot}.C'
+  output: GENCDIR/'covariance_{slot}_{type}.C'
   
   shell: 
-    "scikinC cov{wildcards.type}={input} > {output}"
+    "scikinC cov{wildcards.type}={input}/{wildcards.type} > {output}"
 
 
 rule covConvertPreprocessing:
-  input: 'covariance-{type}_{slot}/transformer{XY}_'
+  input: MODELDIR/'covariance_{slot}'
   
-  output: 'generatedC/covariance-{type}_{slot}-t{XY}.C'
+  output: GENCDIR/'covariance-t{XY}_{slot}_{type}.C'
+
+  params:
+    pythonpath = BASEDIR.parents[0]
   
   shell: 
-    "scikinC cov{wildcards.type}_t{wildcards.XY}={input} > {output};"
+    "PYTHONPATH={params.pythonpath} "
+    "scikinC cov{wildcards.type}_t{wildcards.XY}={input}/{wildcards.type}/transformer{wildcards.XY}_ > {output};"
 
 
 rule covCompile:
   input: 
-    "cpipelines/covariance.C",
-    expand("generatedC/covariance-{type}_{slot}.C", type=types, allow_missing=True),
-    expand("generatedC/covariance-{type}_{slot}-tX.C", type=types, allow_missing=True),
-    expand("generatedC/covariance-{type}_{slot}-tY.C", type=types, allow_missing=True),
+    CPIPELINES/"covariance.C",
+    expand(GENCDIR/"covariance_{slot}_{type}.C", type=types, allow_missing=True),
+    expand(GENCDIR/"covariance-tX_{slot}_{type}.C", type=types, allow_missing=True),
+    expand(GENCDIR/"covariance-tY_{slot}_{type}.C", type=types, allow_missing=True),
 
   output: 
-    "compiledC/covariance_{slot}.so"
+    EXPORTDIR/"covariance_{slot}.so"
 
   shell:
     "gcc -o {output} {input} -shared -fPIC -Ofast"
 
 
-rule compile_all:
-  input: 
-    "compiledC/acceptance_{slot}.so",
-    "compiledC/trkEfficiencyTrav_{slot}.so",
-    expand("compiledC/resolution_{slot}.so", type=types, allow_missing=True),
-    expand("compiledC/covariance_{slot}.so", type=types, allow_missing=True),
-  
-  output:
-    "compile_{slot}"
-
-  shell:
-    "touch {output}"
-
-
+################################################################################
+##  G R O U P E D   R U L E S
+################################################################################
 
 
 rule train_slot:
   input: 
-    acceptance = "acceptance_{slot}.pkl", 
-    efficiency = "trkEfficiencyTrav_{slot}.pkl", 
-    resolution = expand('resolution-{type}_{slot}', type=types, allow_missing=True),
-    covariance = expand('covariance-{type}_{slot}', type=types, allow_missing=True),
+    acceptance = MODELDIR/"acceptance_{slot}.pkl", 
+    efficiency = MODELDIR/"trkEfficiencyTrav_{slot}.pkl", 
+    resolution = expand(MODELDIR/'resolution-{type}_{slot}', type=types, allow_missing=True),
+    covariance = expand(MODELDIR/'covariance-{type}_{slot}', type=types, allow_missing=True),
 
   output:
     "train_{slot}"
@@ -342,10 +344,10 @@ rule train_slot:
     
 rule validate_slot:
   input:
-    acceptance = "LbTrksimTrain/reports/{slot}-accValidate.html",
-    efficiency = "LbTrksimTrain/reports/{slot}-effValidate.html",
-    resolution = "LbTrksimTrain/reports/{slot}-resValidate.html",
-    covariance = "LbTrksimTrain/reports/{slot}-covValidate.html",
+    acceptance = REPORTDIR/"accValidate_{slot}.html",
+    efficiency = REPORTDIR/"effValidate_{slot}.html",
+    resolution = REPORTDIR/"resValidate_{slot}.html",
+    covariance = REPORTDIR/"covValidate_{slot}.html",
 
   output:
     "validate_{slot}"
@@ -360,3 +362,19 @@ rule trainall:
 rule validateall:
   input:
     expand("validate_{slot}", slot=slots) 
+
+
+rule compile_all:
+  input: 
+    EXPORTDIR/"acceptance_{slot}.so",
+    EXPORTDIR/"trkEfficiencyTrav_{slot}.so",
+    expand(EXPORTDIR/"resolution_{slot}.so", type=types, allow_missing=True),
+    expand(EXPORTDIR/"covariance_{slot}.so", type=types, allow_missing=True),
+  
+  output:
+    "compile_{slot}"
+
+  shell:
+    "touch {output}"
+
+

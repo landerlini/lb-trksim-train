@@ -88,13 +88,13 @@ class Dataset:
 #    print ("#"*80)
     new_names = {v:k for k,v in config.variables.items()} 
 
-#    for column in db.columns:
-#      if column.count('[') == 3:
-#        name, i = (re.findall ("([A-Za-z_]*)\[([0-9]*)\]", column)[0] ) 
-#        new_names [column] = "%s_%d" % (new_names[name],i) 
-#      elif column.count('[') == 2:
-#        name, i, j = (re.findall ("([A-Za-z_]*)\[([0-9]*)\]\[([0-9]*)\]", column)[0] ) 
-#        new_names [column] = "%s_%s_%s" % (new_names[name],i,j) 
+    for column in db.columns:
+      if column.count('[') == 3:
+        name, i = (re.findall ("([A-Za-z_]*)\[([0-9]*)\]", column)[0] ) 
+        new_names [column] = "%s_%d" % (new_names[name],i) 
+      elif column.count('[') == 2:
+        name, i, j = (re.findall ("([A-Za-z_]*)\[([0-9]*)\]\[([0-9]*)\]", column)[0] ) 
+        new_names [column] = "%s_%s_%s" % (new_names[name],i,j) 
 
     db.columns = [new_names[old_name] if old_name in new_names.keys() else old_name for old_name in original_columns] 
     print ("and then", db.columns)
