@@ -14,7 +14,7 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 setup(
-    name='lb-trksim-train',  # Required
+    name='LbTrksimTrain',  # Required
     version='0.1.0',  # Required
     description='Training pipeline for the parametrization of the tracking',  
     long_description=long_description,  

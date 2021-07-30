@@ -16,21 +16,24 @@ RUN apt-get update \
 RUN conda install --yes --quiet -c conda-forge -c anaconda \
     python=$PYTHON_VERSION \
     xrootd \
-    numpy \
-    pandas \
-    matplotlib \ 
-    uproot \
-    keras \
-    scikit-learn \
-    scikit-image \
     tensorflow-gpu \
     && conda clean --yes --all --force-pkgs-dirs 
 
-RUN conda run pip install --quiet snakemake
+RUN conda run pip install --quiet \
+  snakemake \
+  pandas \
+  uproot \
+  numpy \
+  scikit-learn 
+
 RUN conda run pip install --quiet scikinC
 
 CMD git clone -b fastfortests git@github.com:landerlini/lb-trksim-train.git trk \
     && git clone -b test git@github.com:mbarbetti/lb-pidgan-train.git pid \
+    && pip install scipy==1.4.1 \
+    && echo "### INSTALLING ###" \ 
     && python trk/setup.py install  \
-    && snakemake -s trk/Snakefile -j 32 compile_2016-MagUp  
+    && echo "### LAUNCHING ###" \ 
+    && snakemake -s trk/Snakefile -j 32 compile_2016-MagUp   \
+    && echo "### DONE ###"  
      
