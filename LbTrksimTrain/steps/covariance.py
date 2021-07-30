@@ -35,7 +35,7 @@ def train_one_type(cfg, report, modeldir, tracktype=3):
     report.add_markdown("# %s tracks" % tracktypename)
     recoed = Dataset.iterate(
         cfg.datasets['BrunelRecoed'],
-        max_chunks=1000000000,
+        max_chunks=1,
         entrysteps=cfg.covarianceGAN.chunksize
     )
 
@@ -73,7 +73,8 @@ def train_one_type(cfg, report, modeldir, tracktype=3):
       del myGan.transformerY_
 
     largedset = Dataset.get(cfg.datasets['BrunelRecoed'], "type==%d" % tracktype,
-                            max_files={3: 5, 4: 50, 5: 1000}[tracktype]
+                            max_files=1
+                            #max_files={3: 5, 4: 50, 5: 1000}[tracktype]
                             )
 
     X, Y = gan_utils.getData(cfg.covarianceGAN, largedset, tracktype)
@@ -103,7 +104,7 @@ def train_one_type(cfg, report, modeldir, tracktype=3):
     myGan.save(os.path.join (modeldir, tracktypename.lower()))
     report.add_markdown("Plots")
     recoed = Dataset.iterate(
-        cfg.datasets['BrunelRecoed'], max_chunks=1000000000, entrysteps=1000000)
+        cfg.datasets['BrunelRecoed'], max_chunks=1, entrysteps=1000)
     db = next(iter(recoed))
     X, Y = gan_utils.getData(cfg.covarianceGAN, db, tracktype)
     Yhat = myGan.predict(X)
@@ -166,10 +167,10 @@ def validate(cfg, report, modeldir):
 
     for tracktype, tracktypename in [(3, 'Long'), (4, 'Upstream'), (5, 'Downstream')]:
         report.add_markdown("# Validation for %s tracks" % tracktypename)
-        gan = GanModel.GanModel.load(os.path.join(modeldir, tracktypename.lower())
+        gan = GanModel.GanModel.load(os.path.join(modeldir, tracktypename.lower()))
         recoed = Dataset.get(cfg.datasets['BrunelRecoed'], "type==%d" % tracktype,
-                             #max_files=10,
-                             max_files = {3: 5, 4:50, 5:1000}[tracktype]
+                             max_files=1,
+                             #max_files = {3: 5, 4:50, 5:1000}[tracktype]
                              )
 
         print(tracktypename, "# entries:", len(recoed))

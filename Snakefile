@@ -12,7 +12,7 @@ EXPORTDIR = OUTDIR / 'compiledC'
 CPIPELINES = BASEDIR / 'exporters' / 'cpipelines' 
 
 COMMONCFG = [
-      CONFIGDIR / "tracking.yaml", 
+      CONFIGDIR / "tracking-DEBUG.yaml", 
   ]
 
 slots = ["2016-MagDown", "2016-MagUp"] 
