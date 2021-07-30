@@ -356,12 +356,12 @@ resolutionGAN:
   n_discriminator_nodes: 128
 
   ## Disk-resident data 
-  nChunks: 1000
+  nChunks: 2
     #
   ## Ram-resident data : 
-  chunksize:    1000000
-  nIterations:  100
-  batchsize: 10000
+  chunksize:    10
+  nIterations:  1
+  batchsize: 100
   ## 
   outlayerBeyondThreshold: 0.001 ## Will ignore up to this fraction of the data 
                                 ## as outlayers 
@@ -439,12 +439,12 @@ covarianceGAN:
   n_discriminator_nodes: 256
 
   ## Disk-resident data 
-  nChunks: 5000
+  nChunks: 5
     #
   ## Ram-resident data : 
-  chunksize:    1000000
-  nIterations:  100
-  batchsize: 1000
+  chunksize:    1000
+  nIterations:  2
+  batchsize: 10
   ## 
   outlayerBeyondThreshold: 0.001 ## Will ignore up to this fraction of the data 
                                 ## as outlayers 
