@@ -1,0 +1,152 @@
+from glob import glob
+from os import environ
+from pathlib import Path
+
+DATA_STORAGE = Path("/workarea/cloud-storage") / environ["USERNAME"]
+MODEL_STORAGE = Path("/workarea/local/private/cache")
+
+rule all:
+    input:
+        acceptance="reports/validate_acceptance.html",
+        efficiency="reports/validate_efficiency.html"
+        
+    output:
+        timestamp="reports/all.done"
+        
+    shell:
+        "touch {output.timestamp}"
+        
+
+
+rule preprocessing:
+    input:
+        notebook="Preprocessing.ipynb",
+        data_files=glob(str(DATA_STORAGE/"LamarrBenderTrain/j100/*.root"))
+    
+    
+    output:
+        acceptance_preprocessing=MODEL_STORAGE/"models/acceptance/tX.pkl",
+        efficiency_preprocessing=MODEL_STORAGE/"models/efficiency/tX.pkl",
+        acceptance_train=directory("acceptance-train"),
+        acceptance_test=directory("acceptance-test"),
+        acceptance_validation=directory("acceptance-validation"),
+        efficiency_train=directory("efficiency-train"),
+        efficiency_test=directory("efficiency-test"),
+        efficiency_validation=directory("efficiency-validation")
+        
+    log:
+        report="reports/preprocessing.html"
+        
+    resources:
+        gpu=0
+    
+    shell:
+        "INPUT_FILES='{input.data_files}' "
+        "ACCEPTANCE_PREPROCESSING={output.acceptance_preprocessing} "
+        "EFFICIENCY_PREPROCESSING={output.efficiency_preprocessing} "
+        "ACCEPTANCE_TRAIN={output.acceptance_train} "
+        "ACCEPTANCE_TEST={output.acceptance_test} "
+        "ACCEPTANCE_VALIDATION={output.acceptance_validation} "
+        "EFFICIENCY_TRAIN={output.efficiency_train} "
+        "EFFICIENCY_TEST={output.efficiency_test} "
+        "EFFICIENCY_VALIDATION={output.efficiency_validation} "
+        "jupyter nbconvert --to html --execute "
+        "--ExecutePreprocessor.timeout=-1 "
+        "--ExecutePreprocessor.kernel_name=LHCb "
+        "--no-input --no-prompt   "
+        "{input.notebook} --output {log}"
+
+rule train_acceptance:
+    input:
+        notebook="Acceptance.ipynb",
+        train_data="acceptance-train",
+        validation_data="acceptance-validation"
+    
+    output:
+        model_pb=MODEL_STORAGE/"models/acceptance/saved_model.pb"
+        
+    log:
+        report="reports/train_acceptance.html"
+        
+    resources:
+        gpu=1
+
+        
+    shell:
+        "TRAIN_DATA={input.train_data} "
+        "VALIDATION_DATA={input.validation_data} "
+        "OUTPUT_MODEL={output.model_pb} "
+        "jupyter nbconvert --to html --execute "
+        "--ExecutePreprocessor.timeout=-1 "
+        "--ExecutePreprocessor.kernel_name=tf_on_gpu "
+        "--no-input --no-prompt  "
+        "{input.notebook} --output {log}"
+  
+rule validate_acceptance:
+    input:
+        notebook="Acceptance-validation.ipynb",
+        test_data="acceptance-test",
+        model_pb=MODEL_STORAGE/"models/acceptance/saved_model.pb"
+        
+    log:
+        report="reports/validate_acceptance.html"
+
+    resources:
+        gpu=1
+
+    shell:
+        "TEST_DATA={input.test_data} "
+        "INPUT_MODEL={input.model_pb} "
+        "jupyter nbconvert --to html --execute "
+        "--ExecutePreprocessor.timeout=-1 "
+        "--ExecutePreprocessor.kernel_name=LHCb "
+        "--no-input --no-prompt --allow-errors  "
+        "{input.notebook} --output {log}"
+        
+rule train_efficiency:
+    input:
+        notebook="Efficiency.ipynb",
+        train_data="efficiency-train",
+        validation_data="efficiency-validation"
+    
+    output:
+        model_pb=MODEL_STORAGE/"models/efficiency/saved_model.pb"
+        
+    log:
+        report="reports/train_efficiency.html"
+        
+    resources:
+        gpu=1
+        
+        
+    shell:
+        "TRAIN_DATA={input.train_data} "
+        "VALIDATION_DATA={input.validation_data} "
+        "OUTPUT_MODEL={output.model_pb} "
+        "jupyter nbconvert --to html --execute "
+        "--ExecutePreprocessor.timeout=-1 "
+        "--ExecutePreprocessor.kernel_name=tf_on_gpu "
+        "--no-input --no-prompt   "
+        "{input.notebook} --output {log}"
+  
+rule validate_efficiency:
+    input:
+        notebook="Efficiency-validation.ipynb",
+        test_data="efficiency-test",
+        model_pb=MODEL_STORAGE/"models/efficiency/saved_model.pb"
+        
+    log:
+        report="reports/validate_efficiency.html"
+
+    resources:
+        gpu=1
+         
+    shell:
+        "TEST_DATA={input.test_data} "
+        "INPUT_MODEL={input.model_pb} "
+        "jupyter nbconvert --to html --execute "
+        "--ExecutePreprocessor.timeout=-1 "
+        "--ExecutePreprocessor.kernel_name=LHCb "
+        "--no-input --no-prompt --allow-errors  "
+        "{input.notebook} --output {log}"
+        
