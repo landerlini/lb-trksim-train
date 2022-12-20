@@ -23,6 +23,17 @@ def store_as_pickle(obj, path_in_env: str, default_path: str):
     return HTML(f"<B>Preprocessing step stored in: </B><PRE>{path}</PRE>")
 
 
+def load_from_pickle(path_in_env: str, default_path: str):
+    """
+    Load an object from a pickle file. Path is taken from the environment.
+    """
+    path = os.path.abspath(os.environ.get(path_in_env, default_path))
+    with open(path, "rb") as input_file:
+        obj = pickle.load(input_file)
+    
+    return obj
+    
+
 def split_and_store(dataset, fracs_and_dirs: list, chunksize: int, **kwargs):
     """
     Split dataset in subsamples and store them in different dirs with feather_io.

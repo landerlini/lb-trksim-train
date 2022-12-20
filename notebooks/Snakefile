@@ -2,13 +2,15 @@ from glob import glob
 from os import environ
 from pathlib import Path
 
-DATA_STORAGE = Path("/workarea/cloud-storage") / environ["USERNAME"]
+#DATA_STORAGE = Path("/workarea/cloud-storage") / environ["USERNAME"]
+DATA_STORAGE = Path("/workarea/local/private/cache/data")
 MODEL_STORAGE = Path("/workarea/local/private/cache")
 
 rule all:
     input:
         acceptance="reports/validate_acceptance.html",
-        efficiency="reports/validate_efficiency.html"
+        efficiency="reports/validate_efficiency.html",
+        resolution="reports/validate_resolution.html"
         
     output:
         timestamp="reports/all.done"
@@ -21,7 +23,7 @@ rule all:
 rule preprocessing:
     input:
         notebook="Preprocessing.ipynb",
-        data_files=glob(str(DATA_STORAGE/"LamarrBenderTrain/j100/*.root"))
+        data_files=glob(str(DATA_STORAGE/"j100/*.root"))
     
     
     output:
@@ -150,3 +152,100 @@ rule validate_efficiency:
         "--no-input --no-prompt --allow-errors  "
         "{input.notebook} --output {log}"
         
+
+
+rule preprocessing_gans:
+    input:
+        notebook="Preprocessing-GANs.ipynb",
+        data_files=glob(str(DATA_STORAGE/"j100/*.root"))
+    
+    
+    output:
+        resolution_preprocessing_x=MODEL_STORAGE/"models/resolution/tX.pkl",
+        resolution_preprocessing_y=MODEL_STORAGE/"models/resolution/tY.pkl",
+        resolution_train=directory("resolution-train"),
+        resolution_test=directory("resolution-test"),
+        resolution_validation=directory("resolution-validation"),
+        covariance_preprocessing_x=MODEL_STORAGE/"models/covariance/tX.pkl",
+        covariance_preprocessing_y=MODEL_STORAGE/"models/covariance/tY.pkl",
+        covariance_train=directory("covariance-train"),
+        covariance_test=directory("covariance-test"),
+        covariance_validation=directory("covariance-validation"),
+
+        
+    log:
+        report="reports/preprocessing_gans.html"
+        
+    resources:
+        gpu=0
+    
+    shell:
+        "INPUT_FILES='{input.data_files}' "
+        "RESOLUTION_PREPROCESSING_X={output.resolution_preprocessing_x} "
+        "RESOLUTION_PREPROCESSING_Y={output.resolution_preprocessing_y} "
+        "RESOLUTION_TRAIN={output.resolution_train} "
+        "RESOLUTION_TEST={output.resolution_test} "
+        "RESOLUTION_VALIDATION={output.resolution_validation} "
+        "COVARIANCE_PREPROCESSING_X={output.covariance_preprocessing_x} "
+        "COVARIANCE_PREPROCESSING_Y={output.covariance_preprocessing_y} "
+        "COVARIANCE_TRAIN={output.covariance_train} "
+        "COVARIANCE_TEST={output.covariance_test} "
+        "COVARIANCE_VALIDATION={output.covariance_validation} "
+        "jupyter nbconvert --to html --execute "
+        "--ExecutePreprocessor.timeout=-1 "
+        "--ExecutePreprocessor.kernel_name=LHCb "
+        "--no-input --no-prompt   "
+        "{input.notebook} --output {log}"
+        
+
+rule train_resolution:
+    input:
+        notebook="Resolution.ipynb",
+        train_data="resolution-train",
+        validation_data="resolution-validation"
+    
+    output:
+        model_pb=MODEL_STORAGE/"models/resolution/saved_model.pb"
+        
+    log:
+        report="reports/train_resolution.html"
+        
+    resources:
+        gpu=1
+
+        
+    shell:
+        "TRAIN_DATA={input.train_data} "
+        "VALIDATION_DATA={input.validation_data} "
+        "OUTPUT_MODEL={output.model_pb} "
+        "jupyter nbconvert --to html --execute "
+        "--ExecutePreprocessor.timeout=-1 "
+        "--ExecutePreprocessor.kernel_name=tf_on_gpu "
+        "--no-input --no-prompt  "
+        "{input.notebook} --output {log}"
+
+
+rule validate_resolution:
+    input:
+        notebook="Resolution-validation.ipynb",
+        test_data="resolution-test",
+        model_pb=MODEL_STORAGE/"models/resolution/saved_model.pb",
+        preprocessing_x=MODEL_STORAGE/"models/resolution/tX.pkl",
+        preprocessing_y=MODEL_STORAGE/"models/resolution/tY.pkl",
+        
+    log:
+        report="reports/validate_resolution.html"
+
+    resources:
+        gpu=1
+         
+    shell:
+        "TEST_DATA={input.test_data} "
+        "INPUT_MODEL={input.model_pb} "
+        "RESOLUTION_PREPROCESSING_X={input.preprocessing_x} "
+        "RESOLUTION_PREPROCESSING_Y={input.preprocessing_y} "
+        "jupyter nbconvert --to html --execute "
+        "--ExecutePreprocessor.timeout=-1 "
+        "--ExecutePreprocessor.kernel_name=LHCb "
+        "--no-input --no-prompt --allow-errors  "
+        "{input.notebook} --output {log}"

@@ -10,7 +10,7 @@ def invert_column_transformer(column_transformer, preprocessed_X):
     preprocessed_split = {name: [None]*len(cols) for name, _, cols in column_transformer.transformers_}
         
     for iCol in range(preprocessed_X.shape[1]):
-        name, transformer, cols = [(n, t, c) for n, t, c in column_transformer.transformers_ if iCol in c].pop()
+        name, transformer, cols = [(n, t, list(c)) for n, t, c in column_transformer.transformers_ if iCol in c].pop()
         preprocessed_split[name][cols.index(iCol)] = preprocessed_X[:,iCol]
     
     X = []
