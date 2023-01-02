@@ -10,7 +10,8 @@ rule all:
     input:
         acceptance="reports/validate_acceptance.html",
         efficiency="reports/validate_efficiency.html",
-        resolution="reports/validate_resolution.html"
+        resolution="reports/validate_resolution.html",
+        covariance="reports/validate_covariance.html"
         
     output:
         timestamp="reports/all.done"
@@ -244,6 +245,59 @@ rule validate_resolution:
         "INPUT_MODEL={input.model_pb} "
         "RESOLUTION_PREPROCESSING_X={input.preprocessing_x} "
         "RESOLUTION_PREPROCESSING_Y={input.preprocessing_y} "
+        "jupyter nbconvert --to html --execute "
+        "--ExecutePreprocessor.timeout=-1 "
+        "--ExecutePreprocessor.kernel_name=LHCb "
+        "--no-input --no-prompt --allow-errors  "
+        "{input.notebook} --output {log}"
+
+
+rule train_covariance:
+    input:
+        notebook="Covariance.ipynb",
+        train_data="covariance-train",
+        validation_data="covariance-validation"
+    
+    output:
+        model_pb=MODEL_STORAGE/"models/covariance/saved_model.pb"
+        
+    log:
+        report="reports/train_covariance.html"
+        
+    resources:
+        gpu=1
+
+        
+    shell:
+        "TRAIN_DATA={input.train_data} "
+        "VALIDATION_DATA={input.validation_data} "
+        "OUTPUT_MODEL={output.model_pb} "
+        "jupyter nbconvert --to html --execute "
+        "--ExecutePreprocessor.timeout=-1 "
+        "--ExecutePreprocessor.kernel_name=tf_on_gpu "
+        "--no-input --no-prompt  "
+        "{input.notebook} --output {log}"
+
+
+rule validate_covariance:
+    input:
+        notebook="Covariance-validation.ipynb",
+        test_data="covariance-test",
+        model_pb=MODEL_STORAGE/"models/covariance/saved_model.pb",
+        preprocessing_x=MODEL_STORAGE/"models/covariance/tX.pkl",
+        preprocessing_y=MODEL_STORAGE/"models/covariance/tY.pkl",
+        
+    log:
+        report="reports/validate_covariance.html"
+
+    resources:
+        gpu=1
+         
+    shell:
+        "TEST_DATA={input.test_data} "
+        "INPUT_MODEL={input.model_pb} "
+        "COVARIANCE_PREPROCESSING_X={input.preprocessing_x} "
+        "COVARIANCE_PREPROCESSING_Y={input.preprocessing_y} "
         "jupyter nbconvert --to html --execute "
         "--ExecutePreprocessor.timeout=-1 "
         "--ExecutePreprocessor.kernel_name=LHCb "

@@ -1,3 +1,4 @@
+import numpy as np
 import pickle
 import os.path
 import os
@@ -69,7 +70,22 @@ def split_and_store(dataset, fracs_and_dirs: list, chunksize: int, **kwargs):
 
     return n_entries
     
-    
+
+
+class DecorrTransformer:
+    def fit ( self, X, y = None ):
+        self.cov = np.cov (X.T)
+        _, self.eig = np.linalg.eig ( self.cov )
+        return self
+
+    def transform (self, X):
+        dX = X.dot (self.eig) 
+        return dX 
+
+    def inverse_transform (self, dX): 
+        X = dX.dot (self.eig.T) 
+        return X 
+
 
     
 if __name__ == '__main__':
