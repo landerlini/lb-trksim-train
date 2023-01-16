@@ -73,16 +73,38 @@ def split_and_store(dataset, fracs_and_dirs: list, chunksize: int, **kwargs):
 
 
 class DecorrTransformer:
+    """
+    A minmalistic decorrelation transform based on the eigen vectors of covariance matrix.
+    
+    This simple transformers removes the linear correlation from the columns of a 
+    dataset by computing the eigen vectors of their covariance matrix.
+    A matrix is built by stacking the eigen vectors.
+    Applying the matrix to the input features, a linear application rotating 
+    and normalizing the inputs is obtained. 
+    
+    The matrix of the eigen vector is orthogonal by construction, hence the 
+    inverse of the transform is simply obtained by multiplying the trasposed matrix
+    to the transformed input.
+    """
     def fit ( self, X, y = None ):
+        """
+        Computes the covariance matrix of the inputs and its eigen vectors. 
+        """
         self.cov = np.cov (X.T)
         _, self.eig = np.linalg.eig ( self.cov )
         return self
 
     def transform (self, X):
+        """
+        Applies the direct transformation
+        """
         dX = X.dot (self.eig) 
         return dX 
 
     def inverse_transform (self, dX): 
+        """
+        Applies the inverted tranformation
+        """
         X = dX.dot (self.eig.T) 
         return X 
 
