@@ -11,7 +11,8 @@ rule all:
         acceptance="reports/validate_acceptance.html",
         efficiency="reports/validate_efficiency.html",
         resolution="reports/validate_resolution.html",
-        covariance="reports/validate_covariance.html"
+        covariance="reports/validate_covariance.html",
+        shared_obj="exported/generated.so"
         
     output:
         timestamp="reports/all.done"
@@ -302,4 +303,43 @@ rule validate_covariance:
         "--ExecutePreprocessor.timeout=-1 "
         "--ExecutePreprocessor.kernel_name=LHCb "
         "--no-input --no-prompt --allow-errors  "
+        "{input.notebook} --output {log}"
+
+rule deploy:
+    input:
+        notebook="Deploy.ipynb",
+        acceptance_model=MODEL_STORAGE/"models/acceptance/saved_model.pb",
+        acceptance_data="acceptance-validation",
+        efficiency_model=MODEL_STORAGE/"models/efficiency/saved_model.pb",
+        efficiency_data="efficiency-validation",
+        resolution_model=MODEL_STORAGE/"models/resolution/saved_model.pb",
+        resolution_data="resolution-validation",
+        covariance_model=MODEL_STORAGE/"models/covariance/saved_model.pb",
+        covariance_data="covariance-validation"
+       
+    log:
+        report="reports/deploy.html"
+        
+    output:
+        generated_c_file="exported/generated.C",
+        generated_library="exported/generated.so"
+           
+    resources:
+        gpu=0
+    
+    shell:
+        "ACCEPTANCE_MODEL='{input.acceptance_model}' "
+        "EFFICIENCY_MODEL='{input.efficiency_model}' "
+        "RESOLUTION_MODEL='{input.resolution_model}' "
+        "COVARIANCE_MODEL='{input.covariance_model}' "
+        "ACCEPTANCE_TEST_DATA='{input.acceptance_data}' "
+        "EFFICIENCY_TEST_DATA='{input.efficiency_data}' "
+        "RESOLUTION_TEST_DATA='{input.resolution_data}' "
+        "COVARIANCE_REST_DATA='{input.covariance_data}' "
+        "GENERATED_C_FILE='{output.generated_c_file}' "
+        "GENERATED_LIBRARY='{output.generated_library}' "
+        "jupyter nbconvert --to html --execute "
+        "--ExecutePreprocessor.timeout=-1 "
+        "--ExecutePreprocessor.kernel_name=LHCb "
+        "--no-input --no-prompt   "
         "{input.notebook} --output {log}"
