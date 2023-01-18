@@ -1,0 +1,54 @@
+<h1>Modeling the LHCb tracking with Deep Neural Networks</h1>
+<p>This package defines the training procedure for the neural networks contributing to the
+parametrization of the LHCb tracking performance as a pipeline of notebooks. </p>
+<p>The pipeline is defined as a Direct Asynchronous Graph (DAG) using Snakemake, 
+according to the rules presented in the <a href="https://github.com/landerlini/lb-trksim-train/tree/notebooks/notebooks/Snakefile">Snakefile</a>.</p>
+<p>The logical flow of the tracking parametrization is as follows:</p>
+<ul>
+<li>Evaluate whether a particle is in geometrical acceptance</li>
+<li>Evaluate whether a particle is reconstructed as a track, and of which 
+   <code>track-type</code> (long, upstream or downstream)</li>
+<li>Smear the Monte Carlo parameters into track parameters according to a 
+   resolution function that may depend on the kinematics of the particle</li>
+<li>Assess the reconstruction uncertainty on the track, encoded into the covariance 
+   matrix of the Closest-To-Beam track state, as a function of both kinematic 
+   features and measures of the track reconstruction quality (<em>e.g.</em> the track &chi;<sup>2</sup>).</li>
+</ul>
+<p>The notebooks are divided in two main categories: </p>
+<ul>
+<li><strong>Filter functions</strong>, defining the probability of a particle to survive some fixed selection, such as 
+     being in geometrical acceptance or pass the track quality requirements </li>
+<li><strong>Feature functions</strong>, defining new features with arbitary distribution and therefore involving the 
+     usage of generative models (and in particular GANs).</li>
+</ul>
+<h2>Filter functions (acceptance and tracking efficiency)</h2>
+<ul>
+<li>Data preprocessing: <a href="./preprocessing.html">Preprocessing.ipynb</a></li>
+<li>Training of the acceptance model: <a href="./train_acceptance.html">Acceptance.ipynb</a></li>
+<li>Validation of the acceptance model: <a href="./validate_acceptance.html">Acceptance-validation.ipynb</a></li>
+<li>Training of the efficiency model: <a href="./train_efficiency.html">Efficiency.ipynb</a></li>
+<li>Validation of the efficiency model: <a href="./validate_efficiency.html">Efficiency-validation.ipynb</a></li>
+</ul>
+<h2>Feature functions</h2>
+<ul>
+<li>Data preprocessing: <a href="./preprocessing_gans.html">Preprocessing-GANs.ipynb</a></li>
+<li>Training of the resolution model: <a href="./train_resolution.html">Resolution.ipynb</a></li>
+<li>Validation of the resolution model <a href="./validate_resolution.html">Resolution-validation.ipynb</a></li>
+<li>Training of the covariance model: <a href="./train_covariance.html">Covariance.ipynb</a></li>
+<li>Validation of the covariance model: <a href="./validate_covariance.html">Covariance-validation.ipynb</a></li>
+</ul>
+<h2>Deploying the trained models</h2>
+<p>The deployment of the trained model relies on <a href="https://github.com/landerlini/scikinC">scikinC</a>
+as described in the <a href="./deploy.html">Deploy.ipynb</a> notebook.</p>
+<h1>Running the code</h1>
+<p>To run the code you will need to set up the environment. 
+It is recommended to use the Docker image <a href="https://hub.docker.com/r/landerlini/lhcbaf">landerlini/lhcbaf:v0p8</a>
+defining two conda environment:</p>
+<ul>
+<li><strong>LHCb Analysis Facility</strong>, to be used for preprocessing and validation notebooks</li>
+<li><strong>TensorFlow on GPU</strong>, to be used for training</li>
+</ul>
+<p>Using the docker image, the whole pipeline runs issueing</p>
+<p><code>bash
+snakemake --resources gpu=1</code></p>
+<p>from the folder containing this <code>README.md</code> file.</p>
