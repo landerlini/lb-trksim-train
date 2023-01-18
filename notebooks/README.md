@@ -37,7 +37,11 @@ The notebooks are divided in two main categories:
  * Validation of the resolution model [Resolution-validation.ipynb](./Resolution-validation.ipynb)
  * Training of the covariance model: [Covariance.ipynb](./Covariance.ipynb)
  * Validation of the covariance model: [Covariance-validation.ipynb](./Covariance-validation.ipynb)
-  
+
+## Deploying the trained models
+The deployment of the trained model relies on [scikinC](https://github.com/landerlini/scikinC)
+as described in the [Deploy.ipynb](./Deploy.ipynb) notebook.
+
 # Running the code
 To run the code you will need to set up the environment. 
 It is recommended to use the Docker image [landerlini/lhcbaf:v0p8](https://hub.docker.com/r/landerlini/lhcbaf)
@@ -54,4 +58,4 @@ snakemake --resources gpu=1
 
 from the folder containing this `README.md` file.
 
-The output of each running notebook, will be stored, as an HTML file, in the [`reports/`](./reports) directory.
+

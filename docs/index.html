@@ -37,6 +37,9 @@ according to the rules presented in the <a href="https://github.com/landerlini/l
 <li>Training of the covariance model: <a href="./train_covariance.html">Covariance.ipynb</a></li>
 <li>Validation of the covariance model: <a href="./validate_covariance.html">Covariance-validation.ipynb</a></li>
 </ul>
+<h2>Deploying the trained models</h2>
+<p>The deployment of the trained model relies on <a href="https://github.com/landerlini/scikinC">scikinC</a>
+as described in the <a href="./deploy.html">Deploy.ipynb</a> notebook.</p>
 <h1>Running the code</h1>
 <p>To run the code you will need to set up the environment. 
 It is recommended to use the Docker image <a href="https://hub.docker.com/r/landerlini/lhcbaf">landerlini/lhcbaf:v0p8</a>
@@ -49,4 +52,3 @@ defining two conda environment:</p>
 <p><code>bash
 snakemake --resources gpu=1</code></p>
 <p>from the folder containing this <code>README.md</code> file.</p>
-<p>The output of each running notebook, will be stored, as an HTML file, in the <a href="./reports"><code>reports/</code></a> directory.</p>
