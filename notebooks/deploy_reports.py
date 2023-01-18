@@ -81,6 +81,8 @@ def fix_links(html):
         html = html.replace(f"href=\"{link_old}\"", f"href=\"{link_new}\"")
 
     html = re.sub(r'href="\./([^"]*\.py)"', f"href=\"{GITHUB_BRANCH}/\g<1>\"", html)
+    html = re.sub(r'href="\./([^"]*\.c)"', f"href=\"{GITHUB_BRANCH}/\g<1>\"", html)
+    html = re.sub(r'href="\./Snakefile"', f"href=\"{GITHUB_BRANCH}/Snakefile\"", html)
 
     return html
 
