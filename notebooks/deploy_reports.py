@@ -13,7 +13,7 @@ dest_from_source = {
         "index.html": "README.md",
         "deploy.html": "reports/deploy.html",
         "preprocessing.html": "reports/preprocessing.html",
-        "preprocessing_gans.html"
+        "preprocessing_gans.html": "reports/preprocessing_gans.html",
         "train_acceptance.html": "reports/train_acceptance.html",
         "train_covariance.html": "reports/train_covariance.html",
         "train_resolution.html": "reports/train_resolution.html",
