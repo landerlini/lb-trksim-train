@@ -1,4 +1,7 @@
+import json
 import yaml
+import requests 
+
 from logging import getLogger as logger
 try:
   from yaml import CLoader as yamlLoader
@@ -8,6 +11,8 @@ except ImportError :
 class Configuration:
   def __init__ (self, configuration, threads=1):
     self.threads = threads 
+    self.hopaas_server = None
+    self.hopaas_trial = None
 
     if isinstance ( configuration, str ): 
       configuration = [configuration]
@@ -25,6 +30,48 @@ class Configuration:
 
     elif isinstance ( configuration, dict ): 
         self._cfg = configuration.copy () 
+
+
+  def resolve_hopaas(self):
+    if self.hopaas_trial is None:
+      self._cfg = self.consider_hopaas(self._cfg)
+
+  def consider_hopaas(self, cfg):
+    ret = cfg.copy()
+    for key, value in cfg.items():
+      if key == 'optuna_config':
+        return self.submit_to_optuna(cfg)
+      elif isinstance(value, dict):
+        ret[key] = self.consider_hopaas(value)
+
+    return ret
+
+
+  def submit_to_optuna(self, cfg):
+    self.hopaas_server = cfg['optuna_config']['server']
+    res = requests.post(f"http://{self.hopaas_server}/suggest", data=json.dumps(cfg))
+    ret = json.loads(res.text)
+    self.hopaas_trial = ret['hopaas_trial']
+    return ret 
+
+  def should_prune(self, loss, step):
+    if self.hopaas_server is None:
+      return False 
+
+    res = requests.post(f"http://{self.hopaas_server}/should_prune", data=json.dumps({
+        'hopaas_trial': self.hopaas_trial,
+        'loss': loss,
+        'step': step
+      }))
+
+    return json.loads(res.text)
+
+  def finalize_trial(self, loss):
+    if self.hopaas_server is not None:
+      res = requests.post(f"http://{self.hopaas_server}/tell", data=json.dumps({
+          'hopaas_trial': self.hopaas_trial,
+          'loss': loss,
+        }))
 
 
 

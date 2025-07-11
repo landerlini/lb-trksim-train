@@ -12,8 +12,19 @@ datasets:
       #- /pclhcb06/landerli/TrackingParametrization/data/trackRes_10000000_2016_MagDown.root
       - /pclhcb06/landerli/TrackingParametrization/data/unmerged/53/*/trackRes_10000000_2016_MagDown.root
 
+    files_train:
+      - /pclhcb06/landerli/TrackingParametrization/data/unmerged/53/*[1-9]/trackRes_10000000_2016_MagDown.root
+
+    files_validate:
+      - /pclhcb06/landerli/TrackingParametrization/data/unmerged/53/*0/trackRes_10000000_2016_MagDown.root
+      
+
            
   BrunelGenerated:
     files:
       - /pclhcb06/landerli/TrackingParametrization/data/unmerged/53/*/trackRes_10000000_2016_MagDown.root
+    files_train:
+      - /pclhcb06/landerli/TrackingParametrization/data/unmerged/53/*[1-9]/trackRes_10000000_2016_MagDown.root
+    files_validate:
+      - /pclhcb06/landerli/TrackingParametrization/data/unmerged/53/*0/trackRes_10000000_2016_MagDown.root
 

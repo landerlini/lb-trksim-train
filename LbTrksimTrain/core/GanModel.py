@@ -40,9 +40,11 @@ class GanModel:
                 bootstrap=True,
                 batchsize=1000., 
                 lambda_=0.3, 
+                gamma_=1.0, 
                 discriminator_learning_rate  = 1e-5,
                 generator_learning_rate = 1e-5,
                 wreferee = 5, 
+                generator_lazyness = None,
                 ):
 
     self.preprocessing = preprocessing or [
@@ -67,6 +69,8 @@ class GanModel:
     self.bootstrap_                   = bootstrap 
     self.batchsize_                   = batchsize 
     self.lambda_                      = lambda_ 
+    self.gamma_                       = gamma_ 
+    self.generator_lazyness_          = generator_lazyness
 
     self.generator_ = tf.keras.models.Sequential() 
     for iLayer in range(self.n_generator_layers_): 
@@ -162,17 +166,19 @@ class GanModel:
 
     tX = self.transformerX_.transform (X) 
     tY = self.transformerY_.transform (Y) 
+    print (f"PREPROCESSING:  X {X.dtype} -> tX {tX.dtype}")
+    print (f"                Y {Y.dtype} -> tY {tY.dtype}")
     return tX, tY 
 
 
   @tf.function 
-  def _training_step (self, X, Y, w): 
+  def _training_step (self, X, Y, w, train_generator=True): 
     xentropy  = tf.keras.losses.BinaryCrossentropy (label_smoothing = 0.1, from_logits = True)
     ##
     noise = tf.random.normal ((tf.shape(X)[0], self.n_noise_inputs_))
     rX = tf.concat ( [X, noise], axis = 1 )
     with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
-      Yhat = self.lambda_ * self.generator_(rX, training = True) + rX[:,-self.n_Y_:] 
+      Yhat = self.lambda_ * self.generator_(rX, training = True) + self.gamma_ * rX[:,-self.n_Y_:] 
       ##
       real_d    = self.discriminator_(tf.concat([X, Y], axis=1), training=True)
       real_loss = xentropy (tf.ones_like(real_d), real_d, sample_weight = w) 
@@ -183,14 +189,15 @@ class GanModel:
       dLoss = 0.5*(real_loss + fake_loss)
       gLoss = xentropy ( tf.ones_like (fake_d), fake_d, sample_weight = w ) #-tf.reduce_mean ( fake_d )
 
-    self.discriminator_.learning_rate = self.discriminator_learning_rate_ * tf.nn.sigmoid ( (dLoss - np.log(2))*self.wreferee_ )
-    self.generator_.learning_rate = self.generator_learning_rate_ * tf.nn.sigmoid ( -(dLoss - np.log(2))*self.wreferee_ )
+    self.discriminator_.learning_rate = self.discriminator_learning_rate_ #* tf.nn.sigmoid ( (dLoss - np.log(2))*self.wreferee_ )
+    self.generator_.learning_rate = self.generator_learning_rate_ #* tf.nn.sigmoid ( -(dLoss - np.log(2))*self.wreferee_ )
 
     dGrads = disc_tape.gradient(dLoss, self.discriminator_.trainable_variables) 
     gGrads = gen_tape.gradient(gLoss, self.generator_.trainable_variables) 
 
     self.discriminator_optimizer_.apply_gradients(
         zip(dGrads, self.discriminator_.trainable_variables)) 
+
     self.generator_optimizer_.apply_gradients(
         zip(gGrads, self.generator_.trainable_variables)) 
 

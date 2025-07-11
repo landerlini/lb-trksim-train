@@ -152,6 +152,8 @@ datasets:
       eta_EndVelo: eta_EndVelo
       x_EndT: x_EndT
       y_EndT: y_EndT
+      tx_EndT: tx_EndT
+      ty_EndT: ty_EndT
       p_EndT: p_EndT
       eta_EndT: eta_EndT
       x_BegRich2: x_BegRich2
@@ -164,6 +166,8 @@ datasets:
       eta_EndRich1: eta_EndRich1
       x_ClosestToBeam: x_ClosestToBeam
       y_ClosestToBeam: y_ClosestToBeam
+      tx_ClosestToBeam: tx_ClosestToBeam
+      ty_ClosestToBeam: ty_ClosestToBeam
       p_ClosestToBeam: p_ClosestToBeam
       eta_ClosestToBeam: eta_ClosestToBeam
 
@@ -236,22 +240,60 @@ states:
 ################################################################################
 ## Acceptance BDT 
 ################################################################################
+# acceptanceBDT:
+#   discrVars:
+#     - x_ClosestToBeam
+#     - y_ClosestToBeam
+#     - tx_ClosestToBeam
+#     - ty_ClosestToBeam
+#     - p_ClosestToBeam
+#     - eta_ClosestToBeam
+# 
+#   learning_rate: 0.02
+#   nEpochs: 200
+#   #nEpochs: 120
+#   subsample: 0.5
+#   max_depth: 15
+# 
+# 
+# 
+# ################################################################################
+# ## Efficency BDT 
+# ################################################################################
+# efficiencyBDT:
+#   numFiles: 50
+#   discrVars:
+#     - x_ClosestToBeam
+#     - y_ClosestToBeam
+#     - tx_ClosestToBeam
+#     - ty_ClosestToBeam
+#     - p_ClosestToBeam
+#     - eta_ClosestToBeam
+# 
+#   learning_rate: 0.05
+#   nEpochs: 200
+#   #nEpochs: 120
+#   subsample: 0.5
+#   max_depth: 14
+
+
+################################################################################
+## Acceptance BDT 
+################################################################################
 acceptanceBDT:
   discrVars:
-    - x_EndVelo 
-    - y_EndVelo
-    - p_EndVelo
-    - eta_EndVelo
-    - x_EndT 
-    - y_EndT
-    - p_EndT
-    - eta_EndT
+    - x_ClosestToBeam
+    - y_ClosestToBeam
+    - tx_ClosestToBeam
+    - ty_ClosestToBeam
+    - p_ClosestToBeam
+    - eta_ClosestToBeam
 
-  learning_rate: 0.1
-  nEpochs: 200
+  learning_rate: 0.10
+  nEpochs: 30
   #nEpochs: 120
-  subsample: 0.99
-  max_depth: 14
+  subsample: 0.5
+  max_depth: 5
 
 
 
@@ -261,20 +303,18 @@ acceptanceBDT:
 efficiencyBDT:
   numFiles: 50
   discrVars:
-    - x_EndVelo 
-    - y_EndVelo
-    - p_EndVelo
-    - eta_EndVelo
-    - x_EndT 
-    - y_EndT
-    - p_EndT
-    - eta_EndT
+    - x_ClosestToBeam
+    - y_ClosestToBeam
+    - tx_ClosestToBeam
+    - ty_ClosestToBeam
+    - p_ClosestToBeam
+    - eta_ClosestToBeam
 
-  learning_rate: 0.05
-  nEpochs: 200
+  learning_rate: 0.10
+  nEpochs: 30
   #nEpochs: 120
   subsample: 0.5
-  max_depth: 14
+  max_depth: 5
 
 
 ################################################################################
@@ -371,84 +411,144 @@ resolutionGAN:
 ## Covariance GAN 
 ################################################################################
 covarianceGAN:
-  discrVars:
-    - x_ClosestToBeam
-    - y_ClosestToBeam
-    - tx_ClosestToBeam
-    - ty_ClosestToBeam
-    - log(p_ClosestToBeam)/log(10)
-    - likelihood
-    - nDoF
+  ## Configuration common to all track types
+  common: &commoncfg
+    discrVars:
+      - x_ClosestToBeam
+      - y_ClosestToBeam
+      - tx_ClosestToBeam
+      - ty_ClosestToBeam
+      - log(p_ClosestToBeam)/log(10)
+      - likelihood
+      - nDoF
 
-  targetVars:
-    - log(cov_ClosestToBeam_0_0)
-    - cov_ClosestToBeam_0_1
-    - cov_ClosestToBeam_0_2
-    - cov_ClosestToBeam_0_3
-    - cov_ClosestToBeam_0_4
-      #    - cov_ClosestToBeam_1_0
-    - log(cov_ClosestToBeam_1_1)
-    - cov_ClosestToBeam_1_2
-    - cov_ClosestToBeam_1_3
-    - cov_ClosestToBeam_1_4
-      #    - cov_ClosestToBeam_2_0
-      #    - cov_ClosestToBeam_2_1
-    - log(cov_ClosestToBeam_2_2)
-    - cov_ClosestToBeam_2_3
-    - cov_ClosestToBeam_2_4
-      #    - cov_ClosestToBeam_3_0
-      #    - cov_ClosestToBeam_3_1
-      #    - cov_ClosestToBeam_3_2
-    - log(cov_ClosestToBeam_3_3)
-    - cov_ClosestToBeam_3_4
-      #    - cov_ClosestToBeam_4_0
-      #    - cov_ClosestToBeam_4_1
-      #    - cov_ClosestToBeam_4_2
-      #    - cov_ClosestToBeam_4_3
-    - log(cov_ClosestToBeam_4_4)
+    targetVars:
+      - log(cov_ClosestToBeam_0_0)
+      - cov_ClosestToBeam_0_1
+      - cov_ClosestToBeam_0_2
+      - cov_ClosestToBeam_0_3
+      - cov_ClosestToBeam_0_4
+        #    - cov_ClosestToBeam_1_0
+      - log(cov_ClosestToBeam_1_1)
+      - cov_ClosestToBeam_1_2
+      - cov_ClosestToBeam_1_3
+      - cov_ClosestToBeam_1_4
+        #    - cov_ClosestToBeam_2_0
+        #    - cov_ClosestToBeam_2_1
+      - log(cov_ClosestToBeam_2_2)
+      - cov_ClosestToBeam_2_3
+      - cov_ClosestToBeam_2_4
+        #    - cov_ClosestToBeam_3_0
+        #    - cov_ClosestToBeam_3_1
+        #    - cov_ClosestToBeam_3_2
+      - log(cov_ClosestToBeam_3_3)
+      - cov_ClosestToBeam_3_4
+        #    - cov_ClosestToBeam_4_0
+        #    - cov_ClosestToBeam_4_1
+        #    - cov_ClosestToBeam_4_2
+        #    - cov_ClosestToBeam_4_3
+      - log(cov_ClosestToBeam_4_4)
 
-  ## Variables artificially symmetrized to avoid hard boundaries 
-  symVars: []
-    #    - cov_ClosestToBeam_0_0
-    #    - cov_ClosestToBeam_1_1
-    #    - cov_ClosestToBeam_2_2
-    #    - cov_ClosestToBeam_3_3
-    #    - cov_ClosestToBeam_4_4
-     
-  ## Variables smoothed adding a random number in [0,1) 
-  intVars:
-    - nDoF 
+    ## Variables artificially symmetrized to avoid hard boundaries 
+    symVars: []
+      #    - cov_ClosestToBeam_0_0
+      #    - cov_ClosestToBeam_1_1
+      #    - cov_ClosestToBeam_2_2
+      #    - cov_ClosestToBeam_3_3
+      #    - cov_ClosestToBeam_4_4
        
-  cuts:
-        - x_ClosestToBeam != 0. 
-        - y_ClosestToBeam != 0. 
-    #    - z_ClosestToBeam != 0. 
-
-  generator_learning_rate: 1e-5
-  discriminator_learning_rate: 1e-5
-  wreferee: 100
-
-  nRandomNodes: 128
-
-  ## Generator architecture 
-  n_generator_layers: 10
-  n_generator_nodes: 256
-
-  ## Discriminator architecture 
-  n_discriminator_layers: 8
-  n_discriminator_nodes: 256
-
-  ## Disk-resident data 
-  nChunks: 5000
-    #
-  ## Ram-resident data : 
-  chunksize:    1000000
-  nIterations:  100
-  batchsize: 1000
-  ## 
-  outlayerBeyondThreshold: 0.001 ## Will ignore up to this fraction of the data 
-                                ## as outlayers 
+    ## Variables smoothed adding a random number in [0,1) 
+    intVars: 
+      - nDoF 
 
 
+    cuts:
+          - x_ClosestToBeam != 0. 
+          - y_ClosestToBeam != 0. 
+      #    - z_ClosestToBeam != 0. 
 
+    generator_learning_rate: 1e-3
+    discriminator_learning_rate: 1e-3
+    wreferee: 100
+
+    nRandomNodes: 128
+
+    ## Generator architecture 
+    n_generator_layers: 6
+    n_generator_nodes: 128
+
+    generator_gamma: 0.2
+    generator_lambda: 0.3
+
+    ## Discriminator architecture 
+    n_discriminator_layers: 6
+    n_discriminator_nodes: 128
+
+    ##y Disk-resident data 
+    nChunks: 1000
+      #
+    ## Ram-resident data : 
+    chunksize:    10000
+    nIterations:  100
+    batchsize: 1000
+    ## 
+    outlayerBeyondThreshold: 0.001 ## Will ignore up to this fraction of the data 
+                                  ## as outlayers 
+
+    generator_lazyness: 100 # Number of chunks ignored by the generator
+
+
+  ## Specialization for track types
+  long:
+    <<: *commoncfg
+    do_training: True
+    do_validation: False
+
+    ## Learning rate
+    generator_learning_rate: optuna#uniform(1e-5,10e-5)
+    discriminator_learning_rate: optuna#uniform(1e-5,10e-5)
+
+    ## Generator architecture 
+    n_generator_layers: 5
+    n_generator_nodes: optuna#int(64,1024)
+
+    generator_gamma: 1
+    generator_lambda: 0.3
+
+    ## Discriminator architecture 
+    n_discriminator_layers: 5
+    n_discriminator_nodes: optuna#int(64,1024)
+
+    ##y Disk-resident data 
+    nChunks: 1000
+      #
+    ## Ram-resident data : 
+    chunksize:    10000
+    nIterations:  100
+    batchsize:    1000
+
+    optuna_config:
+      server: 'localhost:20202'
+      title: 'Covariance long tracks Jun05 - 5L? LR'
+      pruner:
+        name: 'ThresholdPruner'
+        args: 
+          upper: 0.95
+          lower: 0.05
+          n_warmup_steps: 20  ## Do not prune before this
+      sampler:
+        name: TPESampler
+        args:
+          n_startup_trials: 50
+
+
+  upstream:
+    do_training: False
+    do_validation: False
+    <<: *commoncfg
+
+  downstream:
+    do_training: False
+    do_validation: False
+    <<: *commoncfg
 
