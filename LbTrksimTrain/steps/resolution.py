@@ -2,6 +2,7 @@ import argparse
 from datetime import datetime
 from logging import getLogger as logger
 from functools import partial
+import os.path
 
 import pandas as pd
 import numpy as np
@@ -9,7 +10,6 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import tensorflow as tf
 from scipy.optimize import curve_fit
-from iminuit import minimize
 
 from LbTrksimTrain.core import Configuration
 from LbTrksimTrain.core import Dataset
@@ -73,6 +73,7 @@ def train_one_type(cfg, report, modeldir=None, tracktype=3):
 
     largedset = Dataset.get(cfg.datasets['BrunelRecoed'], "type==%d" % tracktype,
                             max_files={3: 5, 4: 50, 5: 1000}[tracktype]
+                            #max_files=1
                             )
 
     X, Y = gan_utils.getData(cfg.resolutionGAN, largedset, tracktype)
@@ -95,8 +96,12 @@ def train_one_type(cfg, report, modeldir=None, tracktype=3):
         plt.xlabel("Data chunk")
         plt.ylabel("Loss")
         plt.legend()
-        with Report(report.title, report.filename.replace(".html", "-online.html")) as report_:
+        report_dir, report_name = os.path.split(report.filename)
+        exported_file_name = os.path.join(report_dir, "data", report_name.replace(".html", "-%s.npz"%tracktypename))
+        np.savez(exported_file_name, loss=losses, bdt_iter=bdtl[:,0], bdt_train=bdtl[:,1], bdt_test=bdtl[:,2])
+        with Report(report.title, report.filename.replace(".html", "-online-%s.html" % tracktypename)) as report_:
             report_ . add_figure()
+            report_ . add_markdown(f"[Download dataset](data/{os.path.basename(exported_file_name)})")
             plt.clf()
 
     myGan.save(os.path.join(modeldir,tracktypename.lower()))
@@ -167,7 +172,7 @@ def validate(cfg, report, modeldir):
         report.add_markdown("# Validation for %s tracks" % tracktypename)
         gan = GanModel.GanModel.load(os.path.join(modeldir, tracktypename.lower()))
         recoed = Dataset.get(cfg.datasets['BrunelRecoed'], "type==%d" % tracktype,
-                             #max_files=10,
+                             #max_files=1,
                              max_files = {3: 5, 4:50, 5:1000}[tracktype]
                              )
 
@@ -177,6 +182,14 @@ def validate(cfg, report, modeldir):
         eta_bins = np.array([1.8,2.2,3.0,3.3,3.7,4.0,4.3,5.0])
 
         ksDistance = np.zeros ((len(pz_bins)-1, len(eta_bins)-1)) 
+
+        ## Export dataset
+        print ("Exporting dataset")
+        X, Y = gan_utils.getData(cfg.resolutionGAN, recoed, tracktype)
+        Ygen = gan.predict(X)
+        exported_file_name = report.filename.replace(".html", f"-dset-{tracktypename}.npz")
+        np.savez(exported_file_name, X=X, Y=Y, Ygen=Ygen)
+        report.add_markdown(f"[Download dataset]({os.path.basename(exported_file_name)})")
 
         for iVar in range(9): 
           for iPbin, pbin in enumerate(zip(pz_bins[:-1], pz_bins[1:])):

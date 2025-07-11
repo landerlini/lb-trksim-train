@@ -23,6 +23,7 @@ parser = argparse.ArgumentParser ()
 parser.add_argument ( 'commands', nargs = "*", default = 'help', 
     choices = [
       'help',
+      'propagation',
       'acceptance', 
       'genlevelcheck', 
       'efficiency', 
@@ -53,6 +54,16 @@ if 'help' in args.commands:
 
 if args.verbose: 
   logging.getLogger().setLevel(logging.DEBUG) 
+
+################################################################################
+###  P R O P A G A T I O N            
+################################################################################
+if 'propagation' in args.commands:
+  from LbTrksimTrain.steps import propagation 
+  with Report ("Propagation", args.report) as report: 
+    plt.inferno() 
+    propagation.plot ( cfg, report ) 
+
 
 ################################################################################
 ###  A C C E P T A N C E  

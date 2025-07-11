@@ -11,13 +11,13 @@ def getData(cfg, chunk, tracktype):
     eps = cfg.outlayerBeyondThreshold/2
     chunk.query(" and ".join(["(%s)" % s for s in cfg.cuts]), inplace=True)
     chunk.query("type==%d" % tracktype, inplace=True)
-    X = np.stack([chunk.eval(v).astype(np.float32) for v in cfg.discrVars]).T
+    X = np.stack([chunk.eval(v).astype(np.float64) for v in cfg.discrVars]).T
     n = X.shape[0]
     X *= np.stack([np.random.choice([-1., 1.], n)
                    if v in cfg.symVars else np.ones(n) for v in cfg.discrVars]).T
     X += np.stack([np.random.uniform(0, 1, n)
                    if v in cfg.intVars else np.zeros(n) for v in cfg.discrVars]).T
-    Y = np.stack([chunk.eval(v).astype(np.float32) for v in cfg.targetVars]).T
+    Y = np.stack([chunk.eval(v).astype(np.float64) for v in cfg.targetVars]).T
     Y *= np.stack([np.random.choice([-1., 1.], n)
                    if v in cfg.symVars else np.ones(n) for v in cfg.targetVars]).T
     Y += np.stack([np.random.uniform(0, 1, n)
@@ -26,10 +26,10 @@ def getData(cfg, chunk, tracktype):
     # filters outlayers, for non-boolean variables
     for name, x in zip(cfg.discrVars, X.T):
         if ("==" not in name) and (">" not in name) and ("<" not in name):
-            mask &= (x > np.quantile(x, eps)) & (x < np.quantile(x, 1-eps))
+            mask &= (x >= np.quantile(x, eps)) & (x <= np.quantile(x, 1-eps))
     for name, y in zip(cfg.targetVars, Y.T):
         if ("==" not in name) and (">" not in name) and ("<" not in name):
-            mask &= (y > np.quantile(y, eps)) & (y < np.quantile(y, 1-eps))
+            mask &= (y >= np.quantile(y, eps)) & (y <= np.quantile(y, 1-eps))
     X = X[mask]
     Y = Y[mask]
     return X, Y

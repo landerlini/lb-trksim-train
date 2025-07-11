@@ -4,6 +4,7 @@ Makes preliminary plots to visualize the geometrical acceptance
 import numpy as np 
 import matplotlib.pyplot as plt 
 from LbTrksimTrain.core import CachedDataset 
+from LbTrksimTrain.core.Report import Jscript  
 import pickle
 from tqdm import trange
 from logging import getLogger as logger
@@ -12,7 +13,7 @@ from LbTrksimTrain.core import make_histogram
 
 
 def plot (cfg, report): 
-  generated = CachedDataset(cfg.datasets['BrunelGenerated'],  max_chunks = 10, entrysteps = 100000,) 
+  generated = CachedDataset(cfg.datasets['BrunelGenerated'],  max_chunks = 10, entrysteps = 100000, files_key='files_train') 
 
   for state, stcfg in cfg.states.items():
     nh = np.zeros ( [stcfg.binning[0]]*2, dtype = np.float64 ) 
@@ -41,7 +42,7 @@ def train (cfg, report, modelfile):
   from itertools import cycle
 
   report.add_markdown ( "### Training acceptance BDT")
-  generated = CachedDataset(cfg.datasets['BrunelGenerated'], max_chunks = 10, entrysteps = 10000000,) 
+  generated = CachedDataset(cfg.datasets['BrunelGenerated'], max_chunks = 10, entrysteps = 10000000, files_key='files_train') 
 
   accBdt = cfg.acceptanceBDT 
 
@@ -63,10 +64,10 @@ def train (cfg, report, modelfile):
 
     training, test = db[:len(db)//2], db[len(db)//2:] 
     classifier.n_estimators += 1
-    classifier.fit ( training[accBdt.discrVars], training['acceptance'],  )
+    classifier.fit ( training[accBdt.discrVars].values, training['acceptance'].values,  )
     #trainscore.append( classifier.train_score_[-1] )
-    strain = training.sample(1000) 
-    stest  = test.sample(1000) 
+    strain = training.sample(1000) if len(training) > 1000 else training
+    stest  = test.sample(1000) if len(test) > 1000 else test
     trainscore .append( classifier.score ( strain[accBdt.discrVars], strain['acceptance']) )
     testscore  .append( classifier.score ( stest[accBdt.discrVars], stest['acceptance']) )
 
@@ -87,7 +88,7 @@ def train (cfg, report, modelfile):
   acc = pdb ['acceptance'] 
   plt.hist ( var[acc], bins = bins, label = 'Selected', density = True )
   plt.hist ( var, bins = bins, label = 'Unweighted', density = True, histtype = 'step', linewidth = 2, linestyle = '--' )
-  plt.hist ( var, bins = bins, weights = classifier.predict_proba(pdb[accBdt.discrVars])[:,1], label = 'Weighted', histtype = 'step', linewidth = 2, color = 'red', density = True )
+  plt.hist ( var, bins = bins, weights = classifier.predict_proba(pdb[accBdt.discrVars].values)[:,1], label = 'Weighted', histtype = 'step', linewidth = 2, color = 'red', density = True )
   plt.title ( "Acceptance" )
   plt.xlabel ( "$\log_{10}$ (Longitudinal momentum / 1 MeV)" )
   plt.ylabel ( "Normalized candidates" )
@@ -105,7 +106,8 @@ def validate (cfg, report, modelfile):
     classifier = pickle.load ( fin )
 
 
-  generated = CachedDataset(cfg.datasets['BrunelGenerated'],  max_chunks = 100, entrysteps = 100000,) 
+  #generated = CachedDataset(cfg.datasets['BrunelGenerated'],  max_chunks = 100, entrysteps = 100000,) 
+  generated = CachedDataset(cfg.datasets['BrunelGenerated'],  max_chunks = 100, entrysteps = 100000, files_key='files_validate') 
 
   for state, stcfg in cfg.states.items():
     ########################## SIMULATED xy ###########################################
@@ -123,7 +125,8 @@ def validate (cfg, report, modelfile):
     plt.title ( "%s (Boole/Brunel reconstruction)" % state ) 
     plt.xlabel ( "x coordinate [mm]" ) 
     plt.ylabel ( "y coordinate [mm]" ) 
-    report.add_figure(options = 'width = 49%') ; plt.clf() ; plt.close() 
+    js = Jscript().hist2d(f"{state}_xy_brunel", ratio.T, [binning[0][0],binning[0][-1],binning[1][0],binning[1][-1]])
+    report.add_figure(options=str(js.width("49%"))) ; plt.clf() ; plt.close() 
 
 
     ########################## GENERATED xy ###########################################
@@ -142,7 +145,8 @@ def validate (cfg, report, modelfile):
     plt.title ( "%s (GBDT Model)" % state ) 
     plt.xlabel ( "x coordinate [mm]" ) 
     plt.ylabel ( "y coordinate [mm]" ) 
-    report.add_figure(options = 'width = 49%') ; plt.clf() ; plt.close() 
+    js = Jscript().hist2d(f"{state}_xy_model", ratio.T, [binning[0][0],binning[0][-1],binning[1][0],binning[1][-1]])
+    report.add_figure(options=js.width("49%")) ; plt.clf() ; plt.close() 
 
 
     ########################## SIMULATED peta ###########################################
@@ -161,7 +165,8 @@ def validate (cfg, report, modelfile):
     plt.title ( "%s (Boole/Brunel reconstruction)" % state ) 
     plt.xlabel ( "Momentum [GeV/c]" ) 
     plt.ylabel ( "Pseudorapidity" ) 
-    report.add_figure(options = 'width = 49%') ; plt.clf() ; plt.close() 
+    js = Jscript().hist2d(f"{state}_peta_brunel", ratio.T, [binning[0][0],binning[0][-1],binning[1][0],binning[1][-1]])
+    report.add_figure(options=js.width("49%")) ; plt.clf() ; plt.close() 
 
 
     ########################## GENERATED peta ###########################################
@@ -180,7 +185,8 @@ def validate (cfg, report, modelfile):
     plt.title ( "%s (GBDT Model)" % state ) 
     plt.xlabel ( "Momentum [GeV/c]" ) 
     plt.ylabel ( "Pseudorapidity" ) 
-    report.add_figure(options = 'width = 49%') ; plt.clf() ; plt.close() 
+    js = Jscript().hist2d(f"{state}_peta_model", ratio.T, [binning[0][0],binning[0][-1],binning[1][0],binning[1][-1]])
+    report.add_figure(options=js.width("49%")) ; plt.clf() ; plt.close() 
 
   report.add_markdown ("### One-dimensional distributions") 
   wd = {
@@ -210,10 +216,11 @@ def validate (cfg, report, modelfile):
       errorbars = ["Weighted"],
       selections=selections,
       max_chunks = 10, 
+      make_js = True 
       ) 
       
-  for axis in histmaker: 
-    report.add_figure(options = 'width = 24%') ; plt.clf() ; plt.close() 
+  for axis, js in histmaker: 
+    report.add_figure(options=str(js.width('24%'))) ; plt.clf() ; plt.close() 
 
   ##################  Eta bins   ################################################
   report.add_markdown ( "## Pseudorapidity bins") 
@@ -233,10 +240,11 @@ def validate (cfg, report, modelfile):
       errorbars = ["Weighted"],
       selections=selections, 
       max_chunks = 10, 
+      make_js = True,
       ) 
       
-  for axis in histmaker: 
-    report.add_figure(options = 'width = 24%') ; plt.clf() ; plt.close() 
+  for axis, js in histmaker: 
+    report.add_figure(options=str(js.width('24%'))) ; plt.clf() ; plt.close() 
 
 
   ##################  PEta bins   ################################################
@@ -260,10 +268,11 @@ def validate (cfg, report, modelfile):
       errorbars = ["Weighted"],
       selections=selections,
       max_chunks = 10, 
+      make_js = True,
       ) 
       
-  for axis in histmaker: 
-    report.add_figure(options = 'width = 24%') ; plt.clf() ; plt.close() 
+  for axis, js in histmaker: 
+    report.add_figure(options=str(js.width('24%'))) ; plt.clf() ; plt.close() 
 
 
 
