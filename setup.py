@@ -14,7 +14,7 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 setup(
-    name='lb-trksim-train',  # Required
+    name='LbTrksimTrain',  # Required
     version='0.1.0',  # Required
     description='Training pipeline for the parametrization of the tracking',  
     long_description=long_description,  
@@ -54,10 +54,11 @@ setup(
     install_requires=[
       'numpy', 
       'scipy', 
+      'matplotlib', 
       'scikit-learn', 
-      'scikinC[keras]>=0.1',
-      'tensorflow>=2.3',
+      'tensorflow',
       'keras',
+      'scikinC[keras]>=0.1',
       'html-reports>=0.2',
     ],  # Optional
 

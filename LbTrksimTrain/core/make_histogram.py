@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from LbTrksimTrain.core import Dataset
+from LbTrksimTrain.core.Report import Jscript 
 
 light_colors = [
     'red',
@@ -17,7 +18,7 @@ dark_colors = [
 ]
 
 
-def make_histogram(cfg, cfg_dataset, max_chunks=1, entrysteps=1000000, selections=None, weight_dict=None, errorbars=None):
+def make_histogram(cfg, cfg_dataset, max_chunks=1, entrysteps=1000000, selections=None, weight_dict=None, errorbars=None, make_js=False):
     hists = {}
 
     if weight_dict is None:
@@ -83,25 +84,36 @@ def make_histogram(cfg, cfg_dataset, max_chunks=1, entrysteps=1000000, selection
         print ("### New variable", hName) 
         dcolor = iter(cycle(dark_colors))
         lcolor = iter(cycle(light_colors))
+        js = Jscript()
         for wName in hists[sel][hName].keys():
             print ("### New weight", wName) 
             options = cfg[hName].options if 'options' in cfg[hName].keys() else []
             if wName not in errorbars:
-                plt.hist(
-                    0.5 * (hists[sel][hName][wName][1][1:] +
-                           hists[sel][hName][wName][1][:-1]),
-                    weights=hists[sel][hName][wName][0],
-                    bins=hists[sel][hName][wName][1],
-                    label=wName,
-                    histtype='step',
-                    linewidth=3,
-                    density='density' in options,
-                    color=next(lcolor),
+                js.hist(wName, 
+                  *plt.hist(
+                      0.5 * (hists[sel][hName][wName][1][1:] +
+                             hists[sel][hName][wName][1][:-1]),
+                      weights=hists[sel][hName][wName][0],
+                      bins=hists[sel][hName][wName][1],
+                      label=wName,
+                      histtype='step',
+                      linewidth=3,
+                      density='density' in options,
+                      color=next(lcolor),
+                  )
                 )
             else:
                 bwidth = hists[sel][hName][wName][1][1] - hists[sel][hName][wName][1][0]
                 div = np.sum(hists[sel][hName][wName][0]) * \
                     bwidth if 'density' in options else 1.
+                js.errorbar(wName,
+                    0.5 * (hists[sel][hName][wName][1][1:] +
+                           hists[sel][hName][wName][1][:-1]),
+                    hists[sel][hName][wName][0]/div,
+                    xerr=bwidth/2.,
+                    yerr=np.sqrt(np.maximum(hists[sel][hName][wName][0], 1))/div,
+                    )
+
                 plt.errorbar(
                     0.5 * (hists[sel][hName][wName][1][1:] +
                            hists[sel][hName][wName][1][:-1]),
@@ -127,8 +139,12 @@ def make_histogram(cfg, cfg_dataset, max_chunks=1, entrysteps=1000000, selection
             plt.ylabel(
                 cfg[hName].ytitle if 'ytitle' in cfg[hName].keys() else "Entries")
 
-        print ('yield gca')
-        yield plt.gca()
+        if make_js:
+          print ('yield gca and js')
+          yield plt.gca(), js
+        else:
+          print ('yield gca')
+          yield plt.gca()
 
 
 if __name__ == '__main__':

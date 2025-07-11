@@ -1,4 +1,5 @@
 from logging import getLogger as logger
+import os.path
 import pickle 
 
 import numpy as np 
@@ -7,10 +8,11 @@ import matplotlib.pyplot as plt
 
 from LbTrksimTrain.core import Dataset 
 from LbTrksimTrain.core import CachedDataset 
+from LbTrksimTrain.core.Report import Jscript  
 
 def plot ( cfg, report ): 
-  numerator = CachedDataset(cfg.datasets['BrunelRecoed'],      max_chunks = 100, entrysteps = 1000000, max_files = 1)
-  denominator = CachedDataset(cfg.datasets['BrunelGenerated'], max_chunks = 100, entrysteps = 1000000, max_files = 1) 
+  numerator = CachedDataset(cfg.datasets['BrunelRecoed'],      max_chunks = 100, entrysteps = 1000000, max_files = 1, files_key='files_train')
+  denominator = CachedDataset(cfg.datasets['BrunelGenerated'], max_chunks = 100, entrysteps = 1000000, max_files = 1, files_key='files_train') 
 
   for state, stcfg in cfg.states.items():
     nh = np.zeros ( [stcfg.binning[0]]*2, dtype = np.float64 ) 
@@ -60,8 +62,8 @@ def train ( cfg, report, modelfile):
 #  generated = CachedDataset(cfg.datasets['BrunelGenerated'], max_chunks = 10, entrysteps = 1000000,max_files = 1) 
 
   effBdt = cfg.efficiencyBDT
-  recoed    = Dataset.get(cfg.datasets['BrunelRecoed'], "(type==3) or (type==4) or (type==5)",  max_files = effBdt.numFiles) 
-  generated = Dataset.get(cfg.datasets['BrunelGenerated'], 'acceptance==1', max_files = effBdt.numFiles) 
+  recoed    = Dataset.get(cfg.datasets['BrunelRecoed'], "(type==3) or (type==4) or (type==5)",  max_files = effBdt.numFiles, files_key='files_train') 
+  generated = Dataset.get(cfg.datasets['BrunelGenerated'], 'acceptance==1', max_files = effBdt.numFiles, files_key='files_train') 
 
   
 
@@ -113,7 +115,7 @@ def train ( cfg, report, modelfile):
   logger('effTrain').info ("Training started") 
   for i in trange (cfg.efficiencyBDT.nEpochs, ncols = 80, ascii = True):
     classifier.n_estimators += 1
-    classifier.fit ( training[effBdt.discrVars], training['label']) #, np.where(training['label'].values > 0, 0.01, 1) ) 
+    classifier.fit ( training[effBdt.discrVars].values, training['label'].values) #, np.where(training['label'].values > 0, 0.01, 1) ) 
     #trainscore.append( classifier.train_score_[-1] )
     strain = training.sample(1000) 
     stest  = test.sample(1000) 
@@ -144,7 +146,7 @@ def train ( cfg, report, modelfile):
 
 #  for db in generated.iterate():
   db = generated.query ( 'acceptance == 1')
-  w = classifier.predict_proba ( db[cfg.efficiencyBDT.discrVars] )[:,classifier.classes_.tolist().index(3)]
+  w = classifier.predict_proba ( db[cfg.efficiencyBDT.discrVars].values )[:,classifier.classes_.tolist().index(3)]
   dh += np.histogram ( db.eval(var.formula), bins = binning, weights = np.ones_like(w) )[0]
   wdh += np.histogram ( db.eval(var.formula), bins = binning, weights = w )[0]
 
@@ -168,8 +170,8 @@ def validate (cfg, report, modelfile):
     classifier = pickle.load ( fin )
 
   report.add_markdown ( "### Training efficiency BDT")
-  recoed = CachedDataset(cfg.datasets['BrunelRecoed'],      max_files = 1)
-  generated = CachedDataset(cfg.datasets['BrunelGenerated'], max_files = 1) 
+  recoed = CachedDataset(cfg.datasets['BrunelRecoed'],      max_files = 10, files_key='files_validate')
+  generated = CachedDataset(cfg.datasets['BrunelGenerated'], max_files = 10, files_key='files_validate') 
 
   for state, stcfg in cfg.states.items():
     logger("effValidate").info ( "Processing state %s" % state ) 
@@ -194,7 +196,8 @@ def validate (cfg, report, modelfile):
     plt.title ( "%s (Brunel reconstruction as Long track)" % state ) 
     plt.xlabel ( "x coordinate [mm]" ) 
     plt.ylabel ( "y coordinate [mm]" ) 
-    report.add_figure(options = 'width = 49%') ; plt.clf() ; plt.close() 
+    js = Jscript().hist2d(f"{state}_xy_brunel", ratio.T, [binning[0][0],binning[0][-1],binning[1][0],binning[1][-1]])
+    report.add_figure(options=str(js.width("49%"))) ; plt.clf() ; plt.close() 
 
 
     ########################## WEIGHTED xy ###########################################
@@ -216,14 +219,16 @@ def validate (cfg, report, modelfile):
     plt.title ( "%s (GBDT Model)" % state ) 
     plt.xlabel ( "x coordinate [mm]" ) 
     plt.ylabel ( "y coordinate [mm]" ) 
-    report.add_figure(options = 'width = 49%') ; plt.clf() ; plt.close() 
+    js = Jscript().hist2d(f"{state}_xy_model", ratio.T, [binning[0][0],binning[0][-1],binning[1][0],binning[1][-1]])
+    report.add_figure(options=str(js.width("49%"))) ; plt.clf() ; plt.close() 
   
 
     ########################## RECONSTRUCTED peta ###########################################
     logger("effValidate").info ("Plotting reconstructed peta") 
-    binning = [np.linspace(0,150,150), np.linspace(0.5,6.5,120)] 
-    nh = np.zeros ( [149,119], dtype = np.float64 ) 
-    dh = np.zeros ( [149,119], dtype = np.float64 ) 
+    #binning = [np.linspace(0,150,150), np.linspace(0.5,6.5,120)] 
+    binning = [np.linspace(0,150,50), np.linspace(0.5,6.5,40)] 
+    nh = np.zeros ( [binning[0].size-1, binning[1].size-1], dtype = np.float64 ) 
+    dh = np.zeros ( [binning[0].size-1, binning[1].size-1], dtype = np.float64 ) 
     for db in generated.iterate():
       db.query ( "acceptance == 1", inplace = True)
       dh += np.histogram2d ( db['p_%s'%state ]*1e-3, db['eta_%s'%state], bins = binning)[0]
@@ -236,14 +241,16 @@ def validate (cfg, report, modelfile):
     plt.title ( "%s (Brunel reconstruction as Long track)" % state ) 
     plt.xlabel ( "Momentum [GeV/c]" ) 
     plt.ylabel ( "Pseudorapidity" ) 
-    report.add_figure(options = 'width = 49%') ; plt.clf() ; plt.close() 
+    js = Jscript().hist2d(f"{state}_peta_brunel", ratio.T, [binning[0][0],binning[0][-1],binning[1][0],binning[1][-1]])
+    report.add_figure(options=str(js.width("49%"))) ; plt.clf() ; plt.close() 
 
 
     ########################## WEIGHTED peta ###########################################
     logger("effValidate").info ("Plotting weighted peta") 
-    binning = [np.linspace(0,150,150), np.linspace(0.5,6.5,120)] 
-    nh = np.zeros ( [149,119], dtype = np.float64 ) 
-    dh = np.zeros ( [149,119], dtype = np.float64 ) 
+    #binning = [np.linspace(0,150,150), np.linspace(0.5,6.5,120)] 
+    binning = [np.linspace(0,150,50), np.linspace(0.5,6.5,40)] 
+    nh = np.zeros ( [binning[0].size-1, binning[1].size-1], dtype = np.float64 ) 
+    dh = np.zeros ( [binning[0].size-1, binning[1].size-1], dtype = np.float64 ) 
 
     for db in generated.iterate():
       db.query ( "acceptance == 1", inplace = True)
@@ -256,7 +263,84 @@ def validate (cfg, report, modelfile):
     plt.title ( "%s (GBDT Model)" % state ) 
     plt.xlabel ( "Momentum [GeV/c]" ) 
     plt.ylabel ( "Pseudorapidity" ) 
-    report.add_figure(options = 'width = 49%') ; plt.clf() ; plt.close() 
+    js = Jscript().hist2d(f"{state}_peta_model", ratio.T, [binning[0][0],binning[0][-1],binning[1][0],binning[1][-1]])
+    report.add_figure(options=str(js.width("49%"))) ; plt.clf() ; plt.close() 
+
+  ## Export data for further analyses
+  predictions = pd.DataFrame(np.concatenate([
+    np.c_[
+      db[effBdt.discrVars + ['type', 'acceptance']].values,
+      classifier.predict_proba( db[effBdt.discrVars].values)
+      ]
+    for db in generated.iterate()
+    ]), 
+    columns=effBdt.discrVars + ['type', 'acceptance'] +
+      [['NotRecoed', '', '', 'Long', 'Upstream', 'Downstream'][v] for v in classifier.classes_]
+  )
+
+  report_dir, report_name = os.path.split(report.filename)
+  exported_file_name = os.path.join(report_dir, "data", report_name.replace(".html", ".npz"))
+  predictions.to_pickle(exported_file_name)
+  report.add_markdown(f"[Download dataset](data/{os.path.basename(exported_file_name)})")
+
+
+  ## Summary plot
+  p_boundaries = 1, 2, 5, 15, 30, 50, 150
+  eta_boundaries = np.linspace(1, 8, 36)
+
+  hists = [
+      ("Long", "Long", "red", 3),
+      ("Upstream", "Upstream", "green", 4),
+      ("Downstream", "Downstream", "blue", 5),
+  ]
+
+
+  plt.figure(figsize=(14,9))
+  for iBin, (pmin, pmax) in enumerate(zip(p_boundaries[:-1], p_boundaries[1:]), 1):
+      df_bin = predictions.query(f"acceptance == 1 and p_ClosestToBeam >= {pmin*1e3} and p_ClosestToBeam < {pmax*1e3}")
+      plt.subplot(2, 3, iBin)
+      
+      plt.hist(df_bin.eta_ClosestToBeam, bins=eta_boundaries, alpha=0.1, label="In acceptance")
+      plt.hist(df_bin.eta_ClosestToBeam, bins=eta_boundaries, histtype='step', linewidth=0.6, color='black')
+      for w, title, c, t in hists:
+          plt.hist(
+              df_bin.eta_ClosestToBeam, 
+              bins=eta_boundaries, 
+              weights=df_bin[w], 
+              color=c, 
+              histtype='step', 
+              linewidth=2, 
+              alpha=0.5
+          )
+
+          x = (eta_boundaries[1:] + eta_boundaries[:-1])/2
+          xerr = (eta_boundaries[1] - eta_boundaries[0])/2
+          y, _ = np.histogram(df_bin.query(f'type=={t}').eta_ClosestToBeam, bins=eta_boundaries)
+          yerr = np.where(y > 0, np.sqrt(y), 0)
+          plt.errorbar(
+              x, y,
+              yerr, xerr,
+              fmt='o',
+              color=c, 
+              label=title,
+              markersize=3
+          )
+
+          
+      plt.xlabel("Pseudorapidity $\eta$")
+      plt.ylabel(f"Number of tracks / {(eta_boundaries[-1]-eta_boundaries[0])/(len(eta_boundaries)-1):.2f}")
+      plt.title (f"Momentum bin: $p \in [{pmin}, {pmax}]$ GeV/$c$")
+      plt.yscale('log')
+      plt.ylim(1e-1, plt.ylim()[1])
+      
+      if iBin == 1:
+          plt.legend()
+      
+  plt.tight_layout()
+  report.add_figure(options='width=100%')
+  plt.clf()
+  plt.close()
+
 
 
 ################################################################################
@@ -268,8 +352,8 @@ def validate (cfg, report, modelfile):
   eta_bins = [1.8, 2.7, 3.5, 4.2, 5.5] 
   report.add_markdown ( "## Velo-, long- and downstream-tracks") 
 
-  recoed    = Dataset.get(cfg.datasets['BrunelRecoed'], max_files = 1) 
-  generated = Dataset.get(cfg.datasets['BrunelGenerated'], "acceptance == 1", max_files = 1) 
+  recoed    = Dataset.get(cfg.datasets['BrunelRecoed'], max_files = 1, files_key='files_validate') 
+  generated = Dataset.get(cfg.datasets['BrunelGenerated'], "acceptance == 1", max_files = 1, files_key='files_validate') 
 
   plt.hist (generated.eval("log(pz)/log(10)"), bins = 100)
   plt.hist (recoed.eval("log(pz)/log(10)"), bins = 100)
@@ -296,19 +380,25 @@ def validate (cfg, report, modelfile):
     report.add_markdown ( "### %s tracks" % tracktypename) 
     for hName, hist in cfg.efficiencyBDT.validationHistogramsPBins.items(): 
       for pBin, (pz_min, pz_max) in enumerate(zip ( pz_bins[:-1], pz_bins[1:] )): 
+        js = Jscript()
         plt.clf()
         bins = np.linspace ( hist.binning[1], hist.binning[2], hist.binning[0]+1 )
         x = generated.query("(pz > %f) and (pz < %f)" % (pz_min, pz_max)).eval(hist.variable) 
-        plt.hist ( x, bins = bins, label = "Generated", color = 'red', histtype='step', linewidth=2)
+        js.hist(f"{hName}_p{pBin}_g", 
+          *plt.hist ( x, bins = bins, label = "Generated", color = 'red', histtype='step', linewidth=2)
+        )
         ## 
         x = recoed.query("(pz > %f) and (pz < %f) and (type==%d)" % (pz_min, pz_max, tracktype)).eval(hist.variable) 
-        plt.hist ( x, bins = bins, label = "Reconstructed", color = '#44aaaa', histtype='step', linewidth=2)
+        js.hist(f"{hName}_p{pBin}_r", 
+          *plt.hist ( x, bins = bins, label = "Reconstructed", color = '#44aaaa', histtype='step', linewidth=2)
+          )
         ##
         db = generated.query("(pz > %f) and (pz < %f)" % (pz_min, pz_max))
         x = db.eval(hist.variable) 
         w = classifier.predict_proba( db[effBdt.discrVars].values )[:,list(classifier.classes_).index(tracktype)]
         h, _= np.histogram (x, bins = bins, weights = w)
         plt.errorbar ( 0.5*(bins[:-1]+bins[1:]), h, xerr=0.5*(bins[1]-bins[0]), yerr=np.sqrt(h), label='Weighted', color='black', fmt='o', markersize=2 ) 
+        js.errorbar(f"{hName}_p{pBin}_w",0.5*(bins[:-1]+bins[1:]), h, xerr=0.5*(bins[1]-bins[0]), yerr=np.sqrt(h))
 
         plt.xlabel(
             hist.xtitle if 'xtitle' in hist.keys() else hName)
@@ -317,19 +407,25 @@ def validate (cfg, report, modelfile):
         plt.title ( "$p_z$ in (%.1f, %.1f) GeV/$c$" % (pz_min*1e-3, pz_max*1e-3)) 
         plt.legend(title="%s tracks"%tracktypename) 
 
-        report.add_figure(options = 'width = 24%') ; plt.clf() ; plt.close() 
+        js.width("24%")
+        report.add_figure(options = str(js)) ; plt.clf() ; plt.close() 
 
     for hName, hist in cfg.efficiencyBDT.validationHistogramsEtaBins.items(): 
       for etaBin, (eta_min, eta_max) in enumerate(zip ( eta_bins[:-1], eta_bins[1:] )): 
         plt.clf()
+        js = Jscript()
         bins = np.linspace ( hist.binning[1], hist.binning[2], hist.binning[0]+1 )
         x = generated.query("(eta_ClosestToBeam > %f) and (eta_ClosestToBeam < %f)" % (eta_min, eta_max)).eval(hist.variable) 
         if len(x) == 0: continue 
-        plt.hist ( x, bins = bins, label = "Generated", color = 'red', histtype='step', linewidth=2)
+        js.hist(f"{hName}_eta{etaBin}_g",
+          *plt.hist ( x, bins = bins, label = "Generated", color = 'red', histtype='step', linewidth=2)
+          )
         ## 
         x = recoed.query("(eta_ClosestToBeam > %f) and (eta_ClosestToBeam < %f) and (type==%d)" % (eta_min, eta_max, tracktype)).eval(hist.variable) 
         if len(x) == 0: continue 
-        plt.hist ( x, bins = bins, label = "Reconstructed", color = '#44aaaa', histtype='step', linewidth=2)
+        js.hist(f"{hName}_eta{etaBin}_r",
+          *plt.hist ( x, bins = bins, label = "Reconstructed", color = '#44aaaa', histtype='step', linewidth=2)
+          )
         ##
         db = generated.query("(eta_ClosestToBeam > %f) and (eta_ClosestToBeam < %f)" % (eta_min, eta_max))
         if len(x) == 0: continue 
@@ -337,6 +433,7 @@ def validate (cfg, report, modelfile):
         w = classifier.predict_proba( db[effBdt.discrVars].values )[:,list(classifier.classes_).index(tracktype)]
         h, _= np.histogram (x, bins = bins, weights = w)
         plt.errorbar ( 0.5*(bins[:-1]+bins[1:]), h, xerr=0.5*(bins[1]-bins[0]), yerr=np.sqrt(h), label='Weighted', color='black', fmt='o', markersize=2 ) 
+        js.errorbar(f"{hName}_eta{etaBin}_w",0.5*(bins[:-1]+bins[1:]), h, xerr=0.5*(bins[1]-bins[0]), yerr=np.sqrt(h))
 
         plt.xlabel(
             hist.xtitle if 'xtitle' in hist.keys() else hName)
@@ -345,9 +442,8 @@ def validate (cfg, report, modelfile):
         plt.title ( "$\eta$ in (%.1f, %.1f)" % (eta_min, eta_max)) 
         plt.legend(title="%s tracks"%tracktypename) 
 
-        report.add_figure(options = 'width = 24%') ; plt.clf() ; plt.close() 
-
-
+        js.width("24%")
+        report.add_figure(options = str(js)) ; plt.clf() ; plt.close() 
 
 
 
