@@ -23,6 +23,7 @@ jobs:
             singularity run \\
                 -w /tmp \\
                 --unsquash \\
+                --no-mount \\
                 --compat \\
                 --writable-tmpfs \\
                 /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ \\
