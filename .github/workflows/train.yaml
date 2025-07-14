@@ -19,7 +19,7 @@ jobs:
             cat <<EOF > /tmp/myrunner
             #!/bin/bash   
             TMPFILE=/tmp/runner-cmd/$RANDOM.sh
-            mkdir -p /tmp/\$(dirname $TMPFILE)
+            mkdir -p /tmp/\$(dirname \$TMPFILE)
             cat > \$TMPFILE
             echo \$TMPFILE
 
