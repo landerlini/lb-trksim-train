@@ -16,6 +16,9 @@ jobs:
       - name: Setup singularity
         run: |
             echo "Setting up singularity"
+            mkdir -p /tmp/apptainer_tmp
+            mkdir -p /tmp/apptainer_cache
+
             cat <<EOF > /tmp/myrunner
             #!/bin/bash   
             TMPFILE=/tmp/runner-cmd/$RANDOM.sh
@@ -25,6 +28,8 @@ jobs:
             echo \$TMPFILE
 
             cd /tmp
+            APPTAINER_CACHEDIR=/tmp/apptainer_cache \\
+            APPTAINER_TMPDIR=/tmp/apptainer_tmp \\
             apptainer exec \\
                 -B /cvmfs:/cvmfs:ro \\
                 -B \$TMPFILE:/mycommand.sh:ro \\
