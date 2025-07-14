@@ -43,6 +43,9 @@ jobs:
       - name: Run Snakemake
         run: |
           /tmp/myrunner <<EOF
+              ls
+              cd notebooks
+              
               snakemake reports/preprocessing.html
           EOF
         
