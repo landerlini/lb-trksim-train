@@ -31,6 +31,7 @@ jobs:
       - name: Run test workflow
         uses: landerlini/apptainer-gha-runner/workflow@main
         with:
+            workdir: notebooks
             target: example.md
                 
 
