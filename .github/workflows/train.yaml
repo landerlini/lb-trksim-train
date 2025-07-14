@@ -20,7 +20,7 @@ jobs:
             TMPFILE=/tmp/$RANDOM.sh
             cat > \$TMPFILE
             echo \$TMPFILE
-            singularity run \\
+            apptainer run \\
                 -w /tmp \\
                 --unsquash \\
                 --no-mount bind-paths \\
