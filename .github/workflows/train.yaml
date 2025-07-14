@@ -15,7 +15,8 @@ jobs:
       - name: Setup singularity
         run: |
             echo "Setting up singularity"
-            apptainer build --sandbox /tmp/image /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ 
+            apptainer build --sandbox /tmp/image oras://harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3 
+
             cat <<EOF > /tmp/singularity_exec
             #!/bin/bash   
             TMPFILE=/tmp/$RANDOM.sh
