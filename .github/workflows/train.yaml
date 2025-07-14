@@ -10,38 +10,23 @@ jobs:
     environment: full-train
     runs-on: aiinfn-lamarrsim-gpu
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       
-      - uses: landerlini/apptainer-gha-runner@main
+      - name: Run test action
+        uses: landerlini/apptainer-gha-runner@main
         with:
             image: "/cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/"
             run: |
                 cd notebooks 
                 snakemake example.md 
 
-      - name: Setup singularity
-        run: |
-            echo "Setting up singularity"
-            mkdir -p /tmp/apptainer_tmp
-            mkdir -p /tmp/apptainer_cache
-
-            cat <<EOF > /tmp/myrunner
-            #!/bin/bash   
-            EOF
-            cat /tmp/myrunner
-
-            chmod +x /tmp/myrunner 
-            /tmp/myrunner <<EOF
-                echo "Singularity ok"
-            EOF
-
-      - name: Run Snakemake
-        run: |
-          /tmp/myrunner <<EOF
-              ls
-              cd notebooks
-              
-              snakemake example.md
-          EOF
+      - name: Create report
+        uses: landerlini/apptainer-gha-runner@main
+        with:
+            image: "/cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/"
+            run: |
+                cd notebooks 
+                snakemake --report example.md 
         
 
