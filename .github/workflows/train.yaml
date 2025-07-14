@@ -22,5 +22,12 @@ jobs:
                 snakemake --cores 1 example.md 
                 snakemake --report report.html example.md 
 
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: report.html
+
+
         
 
