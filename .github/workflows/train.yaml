@@ -19,7 +19,7 @@ jobs:
             image: "/cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/"
             run: |
                 cd notebooks 
-                snakemake example.md 
+                snakemake --cores 1 example.md 
                 snakemake --report example.md 
 
         
