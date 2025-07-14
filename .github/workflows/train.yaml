@@ -28,6 +28,11 @@ jobs:
           name: html-report
           path: /tmp/artifacts/report.html
 
+      - name: Run test workflow
+        uses: landerlini/apptainer-gha-runner/workflow@main
+        with:
+            target: example.md
+                
 
         
 
