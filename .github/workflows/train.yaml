@@ -8,7 +8,7 @@ on:
 jobs:
   run-snakemake:
     environment: full-train
-    runs-on: gh-arc-lamarrsim
+    runs-on: aiinfn-lamarrsim-gpu
     steps:
       - uses: actions/checkout@v4
       
