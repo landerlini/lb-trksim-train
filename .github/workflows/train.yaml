@@ -52,7 +52,7 @@ jobs:
               ls
               cd notebooks
               
-              snakemake reports/preprocessing.html
+              snakemake test_rule
           EOF
         
 
