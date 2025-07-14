@@ -52,7 +52,7 @@ jobs:
               ls
               cd notebooks
               
-              snakemake test_rule
+              snakemake example.md
           EOF
         
 
