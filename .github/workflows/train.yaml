@@ -16,7 +16,6 @@ jobs:
       - name: Setup singularity
         run: |
             echo "Setting up singularity"
-            apptainer build --sandbox /tmp/image docker://harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3 
             mkdir -p /tmp/image/dev
             cat <<EOF > /tmp/myrunner
             #!/bin/bash   
@@ -29,7 +28,7 @@ jobs:
                 --no-home \\
                 --no-mount dev,/dev \\
                 $@ \\
-                /tmp/image \\
+                docker://landerlini/lhcbaf:0p9b \\
                 /bin/bash \$TMPFILE
             rm \$TMPFILE
             EOF
