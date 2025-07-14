@@ -23,13 +23,9 @@ jobs:
             cd /tmp
             cat > \$TMPFILE
             echo \$TMPFILE
-            apptainer -d exec \\
-                -w /tmp \\
-                --no-home \\
-                --no-mount dev,/dev \\
-                $@ \\
+            apptainer exec \\
                 docker://landerlini/lhcbaf:0p9b \\
-                /bin/bash \$TMPFILE
+                /bin/bash "hello world"
             rm \$TMPFILE
             EOF
             cat /tmp/myrunner
