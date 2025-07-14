@@ -12,7 +12,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-                # /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ 
+      - uses: landerlini/singularity-gha-runner@main
+        image: /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ 
+        run: |
+            cd notebooks 
+            snakemake example.md 
+
       - name: Setup singularity
         run: |
             echo "Setting up singularity"
@@ -21,23 +26,6 @@ jobs:
 
             cat <<EOF > /tmp/myrunner
             #!/bin/bash   
-            TMPFILE=/tmp/runner-cmd/$RANDOM.sh
-            mkdir -p \$(dirname \$TMPFILE)
-            echo "cd /repo" > \$TMPFILE
-            cat >> \$TMPFILE
-            echo \$TMPFILE
-
-            cd /tmp
-            APPTAINER_CACHEDIR=/tmp/apptainer_cache \\
-            APPTAINER_TMPDIR=/tmp/apptainer_tmp \\
-            apptainer exec \\
-                -B /cvmfs:/cvmfs:ro \\
-                -B \$TMPFILE:/mycommand.sh:ro \\
-                -B $PWD:/repo \\
-                --scratch /workarea \\
-                /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/lb-trksim-train-singularity:v0p9b \\
-                /bin/bash /mycommand.sh \\
-            rm \$TMPFILE
             EOF
             cat /tmp/myrunner
 
