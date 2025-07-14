@@ -26,7 +26,8 @@ jobs:
             apptainer exec \\
                 /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/lb-trksim-train-singularity:v0p9b \\
                 -B /cmvfs:/cvmfs:ro \\
-                /bin/bash -c "echo hello world"
+                -B $TMPFILE:/mycommand.sh:ro \\
+                /bin/bash /mycommand.sh \\
             rm \$TMPFILE
             EOF
             cat /tmp/myrunner
