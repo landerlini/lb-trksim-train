@@ -25,9 +25,9 @@ jobs:
                 -w /tmp \\
                 --no-home \\
                 --no-mount /dev \\
-                --writable-tmpfs \\
+                $@ \\
                 /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ \\
-                $@ /bin/bash \$TMPFILE
+                /bin/bash \$TMPFILE
             rm \$TMPFILE
             EOF
             cat /tmp/singularity_exec
