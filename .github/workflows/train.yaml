@@ -31,7 +31,7 @@ jobs:
             cat singularity_exec
 
             chmod +x singularity_exec 
-            exec <<EOF
+            singularity_exec <<EOF
                 echo "Singularity ok"
             EOF
 
