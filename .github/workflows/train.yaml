@@ -25,7 +25,7 @@ jobs:
                 -B /cvmfs \\
                 -B $PWD:/repo \\
                 /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ \\
-                "$@" /bin/bash \$TMPFILE
+                $@ /bin/bash \$TMPFILE
             rm \$TMPFILE
             EOF
             cat exec
