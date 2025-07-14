@@ -17,14 +17,13 @@ jobs:
         run: |
             echo "Setting up singularity"
             apptainer build --sandbox /tmp/image docker://harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3 
-            mkdir /tmp/image/dev
+            mkdir -p /tmp/image/dev
             cat <<EOF > /tmp/myrunner
             #!/bin/bash   
             TMPFILE=/tmp/$RANDOM.sh
             cd /tmp
             cat > \$TMPFILE
             echo \$TMPFILE
-            mkdir /dev
             apptainer -d exec \\
                 -w /tmp \\
                 --no-home \\
