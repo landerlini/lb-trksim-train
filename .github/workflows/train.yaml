@@ -24,7 +24,7 @@ jobs:
             cat > \$TMPFILE
             echo \$TMPFILE
             apptainer exec \\
-                oras://harbor.cloud.infn.it/unpacked/lb-trksim-train-singularity:v0p9b \\
+                /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/lb-trksim-train-singularity:v0p9b \\
                 /bin/bash -c "echo hello world"
             rm \$TMPFILE
             EOF
