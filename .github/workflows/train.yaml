@@ -12,10 +12,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Setup singularity
+            cat <<EOF > exec
+            \#!/bin/bash   
+            singularity run \
+                --compat \ 
+                -B /cvmfs \ 
+                -B $PWD:/repo \ 
+                /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ \ 
+                /bin/bash
+            EOF
+
+            chmod +x exec 
+            exec <<EOF
+                echo "Singularity ok"
+            EOF
+
       - name: Run Snakemake
         run: |
-          cd notebooks
-          singularity run /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ \
-              snakemake reports/preprocessing.html
+          exec <<EOF
+              singularity run 
+                  snakemake reports/preprocessing.html
+          EOF
         
 
