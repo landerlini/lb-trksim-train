@@ -29,6 +29,7 @@ jobs:
                 -B /cvmfs:/cvmfs:ro \\
                 -B \$TMPFILE:/mycommand.sh:ro \\
                 -B $PWD:/repo \\
+                --scratch /workarea \\
                 /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/lb-trksim-train-singularity:v0p9b \\
                 /bin/bash /mycommand.sh \\
             rm \$TMPFILE
