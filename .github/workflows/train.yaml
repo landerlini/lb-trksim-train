@@ -13,12 +13,12 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Setup singularity
-        run:
+        run: |
             cat <<EOF > exec
             \#!/bin/bash   
             singularity run \\
-                --compat \\ 
-                -B /cvmfs \\ 
+                --compat \\
+                -B /cvmfs \\
                 -B $PWD:/repo \\
                 /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ \\
                 /bin/bash "$@"
