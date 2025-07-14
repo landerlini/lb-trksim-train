@@ -24,7 +24,7 @@ jobs:
             cat > \$TMPFILE
             echo \$TMPFILE
             apptainer exec \\
-                docker://landerlini/lhcbaf:0p9b \\
+                docker://landerlini/lhcbaf:v0p9b \\
                 /bin/bash "hello world"
             rm \$TMPFILE
             EOF
