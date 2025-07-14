@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - uses: landerlini/singularity-gha-runner@main
+      - uses: landerlini/apptainer-gha-runner@main
         with:
             image: /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ 
             run: |
