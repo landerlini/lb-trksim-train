@@ -28,9 +28,9 @@ jobs:
                 $@ /bin/bash \$TMPFILE
             rm \$TMPFILE
             EOF
-            cat singularity
+            cat singularity_exec
 
-            chmod +x singularityexec 
+            chmod +x singularity_exec 
             exec <<EOF
                 echo "Singularity ok"
             EOF
