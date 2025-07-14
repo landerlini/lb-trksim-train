@@ -14,9 +14,30 @@ CPIPELINES = BASEDIR / 'exporters' / 'cpipelines'
 COMMONCFG = [
       CONFIGDIR / "tracking.yaml", 
   ]
+#CONFIGDIR / "tracking-DEBUG.yaml", 
 
 slots = ["2016-MagDown", "2016-MagUp"] 
 types = ["long", "upstream", "downstream"]
+
+################################################################################
+##  P R O P A G A T I O N
+################################################################################
+rule propagation:
+  input:
+    config = COMMONCFG + [
+      CONFIGDIR / "{slot}.yaml"
+    ]
+
+  output: REPORTDIR/"propagation_{slot}.html" 
+    
+  log: LOGDIR/"accTrain_{slot}.log" 
+
+  shell:
+    "python3 -m LbTrksimTrain propagation"
+    " -F {input.config}"
+    " -r {output}"
+    " -m propagation"
+    " &> {log}"
 
 
 ################################################################################
@@ -40,7 +61,7 @@ rule accTrain:
     " -F {input.config}"
     " -r {params.report}"
     " -m {output}"
-    " > {log}"
+    " &> {log}"
 
 
 rule accValidate:
@@ -60,7 +81,7 @@ rule accValidate:
     " -F {input.config}"
     " -r {output}"
     " -m {input.model}"
-    " > {log}"
+    " &> {log}"
 
 
 rule accConvert:
@@ -105,7 +126,7 @@ rule effTrain:
     " -r {params.report}"
     " -j {threads}"
     " -m {output}"
-    "  > {log}"
+    "  &> {log}"
 
 
 rule effValidate:
@@ -128,7 +149,7 @@ rule effValidate:
     " -r {output}"
     " -j {threads}"
     " -m {input.model}"
-    " > {log}"
+    " &> {log}"
 
 
 rule effConvert:
@@ -177,7 +198,7 @@ rule resTrain:
     " -r {params.report}"
     " -m {output}"
     " -j {threads}"
-    " > {log}"
+    " &> {log}"
 
 
 rule resValidation:
@@ -201,7 +222,7 @@ rule resValidation:
     " -r {output}"
     " -m {input.model}"
     " -j {threads}"
-    " > {log}"
+    " &> {log}"
 
 
 rule resConvert:
@@ -258,14 +279,14 @@ rule covTrain:
     directory(MODELDIR/'covariance_{slot}')
 
   params:
-    report = lambda w: REPORTDIR/f"resolution_{w['slot']}.html"
+    report = lambda w: REPORTDIR/f"covariance_{w['slot']}.html"
 
   shell:
     "python3 -m LbTrksimTrain covTrain"
     " -F {input.config}"
     " -r {params.report}"
     " -m {output}"
-    " > {log}"
+    " &> {log}"
 
 
 rule covValidation:
@@ -286,7 +307,7 @@ rule covValidation:
     " -F {input.config}"
     " -r {output}"
     " -m {input.model}"
-    " > {log}"
+    " &> {log}"
 
 
 rule covConvert:

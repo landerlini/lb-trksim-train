@@ -16,10 +16,10 @@ class Dataset:
 
 
   @staticmethod 
-  def iterate (config, entrysteps = 1000000, max_chunks = 10000, max_files = 1000, forever=True):
+  def iterate (config, entrysteps = 1000000, max_chunks = 10000, max_files = 1000, forever=True, files_key='files'):
     while True:
         branches = Dataset.list_branches ( config )
-        filelist = Dataset.get_filelist (config['files'])[:max_files]
+        filelist = Dataset.get_filelist (config[files_key])[:max_files]
         for iChunk, chunk in enumerate( uproot.iterate (
               {f: config['treename'] for f in filelist}, 
               entrysteps = entrysteps,
@@ -41,10 +41,10 @@ class Dataset:
         if not forever: 
           break
 
-  def get (config, selection = None, max_chunks=10000, entrysteps=10000000, max_files = 1000): 
+  def get (config, selection = None, max_chunks=10000, entrysteps=10000000, max_files=1000, files_key='files'): 
     branches = Dataset.list_branches ( config )
     all_dbs = [] 
-    filelist = Dataset.get_filelist (config['files'])[:max_files] 
+    filelist = Dataset.get_filelist (config[files_key])[:max_files]
     for iChunk, chunk in enumerate( uproot.iterate ( 
           {f: config['treename'] for f in filelist}, 
           entrysteps = entrysteps, #config('entrysteps', entrysteps), 
@@ -82,7 +82,7 @@ class Dataset:
   @staticmethod 
   def rename_columns ( config, db ):
     original_columns = db.columns 
-    print ("originally", original_columns)
+    #print ("originally", original_columns)
 #    print ("#"*80)
 #    print ("\n".join(original_columns)) 
 #    print ("#"*80)
@@ -97,7 +97,7 @@ class Dataset:
         new_names [column] = "%s_%s_%s" % (new_names[name],i,j) 
 
     db.columns = [new_names[old_name] if old_name in new_names.keys() else old_name for old_name in original_columns] 
-    print ("and then", db.columns)
+    #print ("and then", db.columns)
 #    print (">"*80)
 #    print ("\n".join(db.columns)) 
 #    print ("<"*80)
@@ -144,10 +144,10 @@ class Dataset:
   def get_filelist ( list_of_strings ):
     return sum([glob(s) for s in list_of_strings], []) 
 
-  def count ( self, selection = None ):
+  def count ( self, selection=None, files_key='files' ):
     cfg = self.config 
     count = uproot.numentries ( 
-        {f: self.config['treename'] for f in self.config['files']}, 
+        {f: self.config['treename'] for f in self.config[files_key]}, 
         )
 
     if selection is None:
@@ -157,7 +157,7 @@ class Dataset:
 
     selcount = 0 
     for iChunk, chunk in enumerate( uproot.iterate ( 
-          {f: self.config['treename'] for f in self.config['files']}, 
+          {f: self.config['treename'] for f in self.config[files_key]}, 
           entrysteps = 1000000,
           expressions = cut_vars,  
           library='pd',
