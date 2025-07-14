@@ -16,17 +16,17 @@ jobs:
         run: |
             echo "Setting up singularity"
             cat <<EOF > exec
-            \#!/bin/bash   
+            #!/bin/bash   
             TMPFILE=/tmp/$RANDOM.sh
-            cat > $TMPFILE
-            echo $TMPFILE
+            cat > \$TMPFILE
+            echo \$TMPFILE
             singularity run \\
                 --compat \\
                 -B /cvmfs \\
                 -B $PWD:/repo \\
                 /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ \\
-                "$@" /bin/bash $TMPFILE
-            rm $TMPFILE
+                "$@" /bin/bash \$TMPFILE
+            rm \$TMPFILE
             EOF
             cat exec
 
