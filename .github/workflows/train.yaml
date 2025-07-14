@@ -15,20 +15,19 @@ jobs:
       - name: Setup singularity
         run: |
             echo "Setting up singularity"
-            apptainer build --sandbox /tmp/image docker://harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3 
-
             cat <<EOF > /tmp/singularity_exec
             #!/bin/bash   
             TMPFILE=/tmp/$RANDOM.sh
+            cd /tmp
             cat > \$TMPFILE
             echo \$TMPFILE
-            apptainer run \\
+            apptainer exec \\
                 -w /tmp \\
-                --no-mount bind-paths \\
+                --unsquash \\
                 --containall \\
                 --compat \\
                 --writable-tmpfs \\
-                /tmp/image \\
+                /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ \\
                 $@ /bin/bash \$TMPFILE
             rm \$TMPFILE
             EOF
