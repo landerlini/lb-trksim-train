@@ -24,7 +24,7 @@ jobs:
             apptainer -d exec \\
                 -w /tmp \\
                 --no-home \\
-                --no-mount /dev \\
+                --no-mount dev,/dev \\
                 $@ \\
                 /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ \\
                 /bin/bash \$TMPFILE
