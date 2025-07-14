@@ -34,6 +34,9 @@ jobs:
             workdir: notebooks
             target: example.md
             report: report
+            profile: |
+                forceall: true
+    
                 
 
         
