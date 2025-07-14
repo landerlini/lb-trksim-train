@@ -25,6 +25,7 @@ jobs:
             echo \$TMPFILE
             apptainer exec \\
                 /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/lb-trksim-train-singularity:v0p9b \\
+                -B /cmvfs:/cvmfs:ro \\
                 /bin/bash -c "echo hello world"
             rm \$TMPFILE
             EOF
