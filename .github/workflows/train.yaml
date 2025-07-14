@@ -19,6 +19,7 @@ jobs:
             \#!/bin/bash   
             TMPFILE=/tmp/$RANDOM.sh
             cat > $TMPFILE
+            echo $TMPFILE
             singularity run \\
                 --compat \\
                 -B /cvmfs \\
