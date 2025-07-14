@@ -35,6 +35,7 @@ jobs:
             target: example.md
             report: report
             profile: |
+                cores: 1
                 forceall: true
     
                 
