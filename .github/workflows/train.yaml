@@ -21,7 +21,7 @@ jobs:
             cd /tmp
             cat > \$TMPFILE
             echo \$TMPFILE
-            apptainer exec \\
+            apptainer -d exec \\
                 -w /tmp \\
                 --unsquash \\
                 --no-mount tmp,sys,dev,proc,/var/tmp,dev,/etc/hosts,/etc/localtime  \\
