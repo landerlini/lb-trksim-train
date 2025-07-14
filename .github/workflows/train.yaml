@@ -25,7 +25,7 @@ jobs:
             echo \$TMPFILE
             apptainer exec \\
                 docker://landerlini/lhcbaf:v0p9b \\
-                /bin/bash "hello world"
+                /bin/bash -c "echo hello world"
             rm \$TMPFILE
             EOF
             cat /tmp/myrunner
