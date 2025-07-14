@@ -21,6 +21,7 @@ jobs:
             cd /tmp
             cat > \$TMPFILE
             echo \$TMPFILE
+            mkdir /tmp
             apptainer -d exec \\
                 -w /tmp \\
                 --no-home \\
