@@ -25,7 +25,7 @@ rule test_rule:
     input:
         readme="README.md",
     output:
-        readme="example.md",
+        readme=report("example.md"),
 
     shell:
         """
