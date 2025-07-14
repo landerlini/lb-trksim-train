@@ -16,16 +16,16 @@ jobs:
       - name: Setup singularity
         run: |
             echo "Setting up singularity"
-            mkdir -p /tmp/image/dev
             cat <<EOF > /tmp/myrunner
             #!/bin/bash   
-            TMPFILE=/tmp/$RANDOM.sh
+            TMPFILE=/tmp/runner-cmd/$RANDOM.sh
+            mkdir -p /tmp/\$(dirname $TMPFILE)
             cd /tmp
             cat > \$TMPFILE
             echo \$TMPFILE
             apptainer exec \\
                 -B /cmvfs:/cvmfs:ro \\
-                -B $TMPFILE:/mycommand.sh:ro \\
+                -B \$TMPFILE:/mycommand.sh:ro \\
                 /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/lb-trksim-train-singularity:v0p9b \\
                 /bin/bash /mycommand.sh \\
             rm \$TMPFILE
