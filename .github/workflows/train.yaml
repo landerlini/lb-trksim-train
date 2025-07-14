@@ -20,7 +20,7 @@ jobs:
             run: |
                 cd notebooks 
                 snakemake --cores 1 example.md 
-                snakemake --report example.md 
+                snakemake --report report.html example.md 
 
         
 
