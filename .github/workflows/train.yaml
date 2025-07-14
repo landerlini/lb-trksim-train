@@ -28,6 +28,7 @@ jobs:
                 "$@" /bin/bash $TMPFILE
             rm $TMPFILE
             EOF
+            cat exec
 
             chmod +x exec 
             exec <<EOF
