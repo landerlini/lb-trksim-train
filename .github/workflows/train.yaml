@@ -12,6 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+                # /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ 
       - name: Setup singularity
         run: |
             echo "Setting up singularity"
@@ -27,7 +28,7 @@ jobs:
                 --no-home \\
                 --no-mount dev,/dev \\
                 $@ \\
-                /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ \\
+                oras://harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3 \\
                 /bin/bash \$TMPFILE
             rm \$TMPFILE
             EOF
