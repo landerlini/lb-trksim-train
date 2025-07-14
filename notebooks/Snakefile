@@ -21,6 +21,18 @@ rule all:
         "touch {output.timestamp}"
         
 
+rule test_rule:
+    input:
+        readme="README.md",
+    output:
+        readme="example.md",
+
+    shell:
+        """
+            echo {input.readme} > {output.readme}
+        """
+
+
 
 rule preprocessing:
     input:
