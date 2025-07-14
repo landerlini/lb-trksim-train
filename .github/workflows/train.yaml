@@ -24,9 +24,9 @@ jobs:
             cat > \$TMPFILE
             echo \$TMPFILE
             apptainer exec \\
-                /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/lb-trksim-train-singularity:v0p9b \\
                 -B /cmvfs:/cvmfs:ro \\
                 -B $TMPFILE:/mycommand.sh:ro \\
+                /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/lb-trksim-train-singularity:v0p9b \\
                 /bin/bash /mycommand.sh \\
             rm \$TMPFILE
             EOF
