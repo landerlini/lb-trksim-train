@@ -15,7 +15,7 @@ jobs:
       - name: Setup singularity
         run: |
             echo "Setting up singularity"
-            cat <<EOF > singularity_exec
+            cat <<EOF > /tmp/singularity_exec
             #!/bin/bash   
             TMPFILE=/tmp/$RANDOM.sh
             cat > \$TMPFILE
@@ -28,18 +28,17 @@ jobs:
                 $@ /bin/bash \$TMPFILE
             rm \$TMPFILE
             EOF
-            cat singularity_exec
+            cat /tmp/singularity_exec
 
-            chmod +x singularity_exec 
-            singularity_exec <<EOF
+            chmod +x /tmp/singularity_exec 
+            /tmp/singularity_exec <<EOF
                 echo "Singularity ok"
             EOF
 
       - name: Run Snakemake
         run: |
-          singularity_exec <<EOF
-              singularity run 
-                  snakemake reports/preprocessing.html
+          /tmp/singularity_exec <<EOF
+              snakemake reports/preprocessing.html
           EOF
         
 
