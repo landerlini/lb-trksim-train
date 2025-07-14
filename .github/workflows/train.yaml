@@ -20,11 +20,12 @@ jobs:
             #!/bin/bash   
             TMPFILE=/tmp/runner-cmd/$RANDOM.sh
             mkdir -p /tmp/\$(dirname $TMPFILE)
-            cd /tmp
             cat > \$TMPFILE
             echo \$TMPFILE
+
+            cd /tmp
             apptainer exec \\
-                -B /cmvfs:/cvmfs:ro \\
+                -B /cvmfs:/cvmfs:ro \\
                 -B \$TMPFILE:/mycommand.sh:ro \\
                 /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/lb-trksim-train-singularity:v0p9b \\
                 /bin/bash /mycommand.sh \\
