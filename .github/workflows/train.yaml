@@ -13,10 +13,11 @@ jobs:
       - uses: actions/checkout@v4
       
       - uses: landerlini/singularity-gha-runner@main
-        image: /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ 
-        run: |
-            cd notebooks 
-            snakemake example.md 
+        with:
+            image: /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ 
+            run: |
+                cd notebooks 
+                snakemake example.md 
 
       - name: Setup singularity
         run: |
