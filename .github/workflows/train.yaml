@@ -24,6 +24,7 @@ jobs:
             apptainer exec \\
                 -w /tmp \\
                 --unsquash \\
+                --no-mount tmp,sys,dev,proc,/var/tmp,dev,/etc/hosts,/etc/localtime  \\
                 --containall \\
                 --compat \\
                 --writable-tmpfs \\
