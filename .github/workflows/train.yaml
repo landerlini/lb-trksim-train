@@ -14,7 +14,7 @@ jobs:
       
       - uses: landerlini/apptainer-gha-runner@main
         with:
-            image: /cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/ 
+            image: "/cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/"
             run: |
                 cd notebooks 
                 snakemake example.md 
