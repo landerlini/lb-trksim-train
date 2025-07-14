@@ -20,7 +20,8 @@ jobs:
             #!/bin/bash   
             TMPFILE=/tmp/runner-cmd/$RANDOM.sh
             mkdir -p \$(dirname \$TMPFILE)
-            cat > \$TMPFILE
+            echo "cd /repo" > \$TMPFILE
+            cat >> \$TMPFILE
             echo \$TMPFILE
 
             cd /tmp
