@@ -24,7 +24,7 @@ jobs:
             cat > \$TMPFILE
             echo \$TMPFILE
             apptainer exec \\
-                docker://harbor.cloud.infn.it/unpacked/lb-trksim-train:v0p9b \\
+                docker://harbor.cloud.infn.it/unpacked/lb-trksim-train-singularity:v0p9b \\
                 /bin/bash -c "echo hello world"
             rm \$TMPFILE
             EOF
