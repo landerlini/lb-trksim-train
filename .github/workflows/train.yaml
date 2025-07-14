@@ -33,6 +33,7 @@ jobs:
         with:
             workdir: notebooks
             target: example.md
+            report: report
                 
 
         
