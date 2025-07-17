@@ -25,6 +25,7 @@ jobs:
 
       - name: Retrieve secrets
         run: |
+            mkdir -p /tmp/artifacts
             echo $SECRETS_YAML > /tmp/artifacts/secrets.yaml
 
       - name: Run preprocessing
