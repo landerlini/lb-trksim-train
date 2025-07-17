@@ -34,7 +34,7 @@ jobs:
         uses: landerlini/apptainer-gha-runner/workflow@main
         with:
             workdir: notebooks
-            target: preprocessing
+            target: preprocessing validate_acceptance validata_efficiency
             report: report
             snakefile: workflow/Snakefile
             config: |
@@ -61,15 +61,6 @@ jobs:
                   gpu: 1
 
 
-      - name: Create report
-        uses: landerlini/apptainer-gha-runner/container@main
-        with:
-            image: "/cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/"
-            run: |
-                cd notebooks 
-                export SNAKEMAKE_PROFILE=workflow/profile
-                snakemake --report /tmp/artifacts/report.html \
-                    preprocessing 
 
 
     #  - name: Run test workflow
