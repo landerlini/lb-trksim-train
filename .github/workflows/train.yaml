@@ -26,13 +26,13 @@ jobs:
       - name: Run preprocessing
         uses: landerlini/apptainer-gha-runner/workflow@main
         with:
+            workdir: notebooks
+            target: preprocessing
+            report: report
             profile: |
                 rerun-incomplete: True
                 keep-going: True
 
-                workdir: notebooks
-                target: preprocessing
-                report: report
 
                 software-deployment-method: apptainer
                 local-storage-prefix: /tmp
