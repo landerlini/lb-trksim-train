@@ -25,7 +25,7 @@ jobs:
 
       - name: Retrieve secrets
         run: |
-            echo $SECRETS_YAML > /tmp/secrets.yaml
+            echo $SECRETS_YAML > /tmp/artifacts/secrets.yaml
 
       - name: Run preprocessing
         uses: landerlini/apptainer-gha-runner/workflow@main
@@ -35,7 +35,7 @@ jobs:
             report: report
             snakefile: workflow/Snakefile
             config: |
-                secrets_file: /tmp/secrets.yaml
+                secrets_file: /tmp/artifacts/secrets.yaml
             profile: |
                 rerun-incomplete: True
                 keep-going: True
