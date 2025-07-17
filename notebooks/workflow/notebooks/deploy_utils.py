@@ -16,7 +16,7 @@ class hacks:
     
     @staticmethod
     def copy_dense(layer_from, layer_to):
-            layer_to.build(input_shape=layer_from.input_shape)
+            layer_to.build(input_shape=layer_from.input.shape)
             layer_to.kernel.assign(layer_from.kernel)
             layer_to.bias.assign(layer_from.bias)
             layer_to.activation = layer_from.activation
@@ -29,7 +29,7 @@ class hacks:
             tf.keras.layers.Dense.__init__(
                 self, 
                 dense_layer.bias.shape[0],
-                input_shape=dense_layer.input_shape,
+                input_shape=dense_layer.input.shape,
                 name=f"res{dense_layer.name.lower()}"
             )
             
@@ -113,7 +113,7 @@ class LamarrModel:
             f"Preprocessing: {'👌' if tX is not None else '😞'}." 
             f"Postprocessing: {'👌' if tY is not None else '😞'}." 
         )
-        return LamarrModel(tf.keras.models.load_model(model_dir), tX=tX, tY=tY)
+        return LamarrModel(tf.keras.models.load_model(filename), tX=tX, tY=tY)
             
     @staticmethod
     def collapse_model (model):
@@ -132,7 +132,7 @@ class LamarrModel:
             elif 'dense' in layer.name.lower():
                 collapsed_layers.append(tf.keras.layers.Dense( 
                     layer.bias.shape[0],
-                    input_shape=layer.input_shape[1:],
+                    input_shape=layer.input.shape[1:],
                     name=f"cpy_{layer.name.lower()}"
                 ))
                 hacks.copy_dense(layer_from=layer, layer_to=collapsed_layers[-1])

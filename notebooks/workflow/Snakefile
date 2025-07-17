@@ -1,0 +1,224 @@
+configfile: "config.yaml"
+
+include: "rules/storage.smk"
+
+TRAINING_DATA = ["training-data/j100/tuple-%i.root" % i for i in range(10)]
+
+rule test0:
+    input:
+        data=smkstore(TRAINING_DATA, 's3data')
+
+    output:
+        something=smkstore("small-test.txt", 's3data', '/tmp/snakemake-data')
+
+    shell:
+        """
+        echo {input.data} > {output.something}
+        """
+
+rule build_container:
+    input:
+        definition="workflow/envs/lhcb.def"
+
+    output:
+        image=smkstore("lamarr-train.sif", 's3images')
+
+    shell:
+        """
+        apptainer build {output.image} {input.definition}
+        """
+
+rule cache_container:
+    input:
+        image=smkstore("lamarr-train.sif", 's3images')
+
+    output:
+        image=smkstore("lamarr-train.sif", '/tmp/images')
+
+    shell:
+        """
+        mv {input.image} {output.image}
+        touch {input.image}
+        """
+
+
+rule preprocessing:
+    input:
+        notebook="workflow/notebooks/Preprocessing.ipynb",
+        data_files=smkstore(TRAINING_DATA, 's3data'),
+        container=smkstore("lamarr-train.sif", '/tmp/images'),
+    
+    output:
+        acceptance_preprocessing=smkstore("acceptance/tX.pkl", 's3models'),
+        efficiency_preprocessing=smkstore("efficiency/tX.pkl", 's3models'),
+        acceptance_train=directory("/tmp/acceptance-train"),
+        acceptance_test=directory("/tmp/acceptance-test"),
+        acceptance_validation=directory("/tmp/acceptance-validation"),
+        efficiency_train=directory("/tmp/efficiency-train"),
+        efficiency_test=directory("/tmp/efficiency-test"),
+        efficiency_validation=directory("/tmp/efficiency-validation"),
+        report=report(
+            smkstore("preprocessing.html", 's3reports'),
+            category="Preprocessing",
+            labels=dict(model='all')
+        )
+    log:
+        report=report(smkstore("preprocessing.html", 's3reports'))
+        
+    resources:
+        gpu=0
+
+    container: smkstore("lamarr-train.sif", '/tmp/images')
+    
+    shell:
+        """
+        INPUT_FILES='{input.data_files}' \
+        ACCEPTANCE_PREPROCESSING={output.acceptance_preprocessing} \
+        EFFICIENCY_PREPROCESSING={output.efficiency_preprocessing} \
+        ACCEPTANCE_TRAIN={output.acceptance_train} \
+        ACCEPTANCE_TEST={output.acceptance_test} \
+        ACCEPTANCE_VALIDATION={output.acceptance_validation} \
+        EFFICIENCY_TRAIN={output.efficiency_train} \
+        EFFICIENCY_TEST={output.efficiency_test} \
+        EFFICIENCY_VALIDATION={output.efficiency_validation} \
+        jupyter nbconvert --to html --execute \
+        --ExecutePreprocessor.timeout=-1 \
+        --ExecutePreprocessor.kernel_name=python3 \
+        --no-input --no-prompt \
+        {input.notebook} --output {log}
+        """
+
+
+rule train_acceptance:
+    input:
+        notebook="workflow/notebooks/Acceptance.ipynb",
+        train_data="/tmp/acceptance-train",
+        validation_data="/tmp/acceptance-validation",
+        container=smkstore("lamarr-train.sif", '/tmp/images')
+    
+    output:
+        model_pb=smkstore("acceptance/model.keras", 's3models'),
+        report=report(
+            smkstore("train_acceptance.html", 's3reports'),
+            category="Training",
+            labels=dict(model='acceptance')
+            )
+        
+    log:
+        report=smkstore("train_acceptance.html", 's3reports')
+        
+    resources:
+        gpu=1
+
+    container: smkstore("lamarr-train.sif", '/tmp/images')
+        
+    shell:
+        """
+        TRAIN_DATA={input.train_data} \
+        VALIDATION_DATA={input.validation_data} \
+        OUTPUT_MODEL={output.model_pb} \
+        MAX_EPOCHS=1 \
+        jupyter nbconvert --to html --execute \
+        --ExecutePreprocessor.timeout=-1 \
+        --ExecutePreprocessor.kernel_name=python3 \
+        --no-input --no-prompt  \
+        {input.notebook} --output {log}
+        """
+
+
+rule validate_acceptance:
+    input:
+        notebook="workflow/notebooks/Acceptance-validation.ipynb",
+        test_data="/tmp/acceptance-test",
+        model_pb=smkstore("acceptance/model.keras", 's3models'),
+
+    output:
+        report=report(
+            smkstore("validate_acceptance.html", 's3reports'),
+            category="Validation",
+            labels=dict(model='acceptance')
+            )
+        
+    log:
+        report=smkstore("validate_acceptance.html", 's3reports')
+
+    resources:
+        gpu=1
+
+    container: smkstore("lamarr-train.sif", '/tmp/images')
+
+    shell:
+        """
+        TEST_DATA={input.test_data} \
+        INPUT_MODEL={input.model_pb} \
+        jupyter nbconvert --to html --execute \
+        --ExecutePreprocessor.timeout=-1 \
+        --ExecutePreprocessor.kernel_name=python3 \
+        --no-input --no-prompt --allow-errors  \
+        {input.notebook} --output {log}
+        """
+
+
+rule train_efficiency:
+    input:
+        notebook="workflow/notebooks/Efficiency.ipynb",
+        train_data="/tmp/efficiency-train",
+        validation_data="/tmp/efficiency-validation",
+        container=smkstore("lamarr-train.sif", '/tmp/images')
+    
+    output:
+        model_pb=smkstore("efficiency/model.keras", 's3models'),
+        report=report(smkstore("train_efficiency.html", 's3reports'))
+        
+    log:
+        report=smkstore("train_efficiency.html", 's3reports')
+        
+    resources:
+        gpu=1
+
+    container: smkstore("lamarr-train.sif", '/tmp/images')
+        
+    shell:
+        """
+        TRAIN_DATA={input.train_data} \
+        VALIDATION_DATA={input.validation_data} \
+        OUTPUT_MODEL={output.model_pb} \
+        MAX_EPOCHS=1 \
+        jupyter nbconvert --to html --execute \
+        --ExecutePreprocessor.timeout=-1 \
+        --ExecutePreprocessor.kernel_name=python3 \
+        --no-input --no-prompt  \
+        {input.notebook} --output {log}
+        """
+
+
+rule validate_efficiency:
+    input:
+        notebook="workflow/notebooks/Efficiency-validation.ipynb",
+        test_data="/tmp/efficiency-test",
+        model_pb=smkstore("efficiency/model.keras", 's3models'),
+
+    output:
+        report=report(smkstore("validate_efficiency.html", 's3reports'))
+        
+    log:
+        report=smkstore("validate_efficiency.html", 's3reports')
+
+    resources:
+        gpu=1
+
+    container: smkstore("lamarr-train.sif", '/tmp/images')
+
+    shell:
+        """
+        TEST_DATA={input.test_data} \
+        INPUT_MODEL={input.model_pb} \
+        jupyter nbconvert --to html --execute \
+        --ExecutePreprocessor.timeout=-1 \
+        --ExecutePreprocessor.kernel_name=python3 \
+        --no-input --no-prompt --allow-errors  \
+        {input.notebook} --output {log}
+        """
+
+
+
