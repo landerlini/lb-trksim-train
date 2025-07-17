@@ -27,6 +27,8 @@ jobs:
         run: |
             mkdir -p /tmp/artifacts
             echo $SECRETS_YAML > /tmp/artifacts/secrets.yaml
+            echo $TEST_SECRET > /tmp/artifacts/fake_secrets.yaml
+            cat /tmp/artifacts/fake_secrets.yaml
 
       - name: Run preprocessing
         uses: landerlini/apptainer-gha-runner/workflow@main
