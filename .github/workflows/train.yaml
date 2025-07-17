@@ -29,6 +29,7 @@ jobs:
             workdir: notebooks
             target: preprocessing
             report: report
+            snakefile: workflow/Snakefile
             profile: |
                 rerun-incomplete: True
                 keep-going: True
