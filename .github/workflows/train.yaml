@@ -27,7 +27,7 @@ jobs:
         run: |
             mkdir -p /tmp/artifacts
             cat <<EOF > /tmp/artifacts/secrets.yaml
-            ${{ secrets.TEST_SECRET }}
+            ${{ secrets.SECRETS_YAML }}
             EOF
 
       - name: Run preprocessing
