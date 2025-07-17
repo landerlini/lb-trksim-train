@@ -34,7 +34,7 @@ jobs:
             ${{ secrets.SECRETS_YAML }}
             EOF
 
-      - name: Snakemake workflow: acceptance and efficiency
+      - name: Acceptance and efficiency
         uses: landerlini/apptainer-gha-runner/workflow@main
         with:
             workdir: notebooks
