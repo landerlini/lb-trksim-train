@@ -18,7 +18,7 @@ rule test0:
 
 rule build_container:
     input:
-        definition="workflow/envs/lhcb.def"
+        definition=ancient("workflow/envs/lhcb.def")
 
     output:
         image=smkstore("lamarr-train.sif", 's3images')
