@@ -41,7 +41,6 @@ jobs:
                 rerun-incomplete: True
                 keep-going: True
 
-
                 software-deployment-method: apptainer
                 local-storage-prefix: /tmp
                 apptainer-args: -B /home -B /cvmfs -B /tmp --nv --writable-tmpfs --no-mount /usr
