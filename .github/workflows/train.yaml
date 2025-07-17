@@ -23,6 +23,10 @@ jobs:
 #                snakemake preprocessing
 #                snakemake preprocessing --report
 
+      - name: Retrieve secrets
+        run: |
+            echo $SECRETS_YAML > /tmp/secrets.yaml
+
       - name: Run preprocessing
         uses: landerlini/apptainer-gha-runner/workflow@main
         with:
@@ -30,6 +34,8 @@ jobs:
             target: preprocessing
             report: report
             snakefile: workflow/Snakefile
+            config: |
+                secrets_file: /tmp/secrets.yaml
             profile: |
                 rerun-incomplete: True
                 keep-going: True
