@@ -25,7 +25,7 @@ From: python:3.12
         jupyter \
         nbconvert \
         keras \
-        tensorflow \
+        tensorflow[and-cuda] \
         pandoc \
         uproot \
         ipykernel 

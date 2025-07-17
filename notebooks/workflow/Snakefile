@@ -168,7 +168,11 @@ rule train_efficiency:
     
     output:
         model_pb=smkstore("efficiency/model.keras", 's3models'),
-        report=report(smkstore("train_efficiency.html", 's3reports'))
+        report=report(
+            smkstore("train_efficiency.html", 's3reports'),
+            category="Training",
+            labels=dict(model='efficiency')
+            )
         
     log:
         report=smkstore("train_efficiency.html", 's3reports')
@@ -199,7 +203,11 @@ rule validate_efficiency:
         model_pb=smkstore("efficiency/model.keras", 's3models'),
 
     output:
-        report=report(smkstore("validate_efficiency.html", 's3reports'))
+        report=report(
+            smkstore("validate_efficiency.html", 's3reports'),
+            category="Validation",
+            labels=dict(model='efficiency')
+            )
         
     log:
         report=smkstore("validate_efficiency.html", 's3reports')
