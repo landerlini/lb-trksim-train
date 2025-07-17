@@ -29,7 +29,6 @@ jobs:
             cat <<EOF > /tmp/artifacts/secrets.yaml
             ${{ secrets.TEST_SECRET }}
             EOF
-            cat /tmp/artifacts/fake_secrets.yaml
 
       - name: Run preprocessing
         uses: landerlini/apptainer-gha-runner/workflow@main
