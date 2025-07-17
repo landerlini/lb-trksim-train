@@ -13,11 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Restore file timestamps
-        run: |
-          pip install git-restore-mtime
-          git restore-mtime
-      
+    - name: Restore file timestamps
+      run: |
+          git log -1 --format="%at" -- notebooks/workflow/envs/lhcb.def
+
 #      - name: Run preprocessing
 #        uses: landerlini/apptainer-gha-runner/container@main
 #        with:
