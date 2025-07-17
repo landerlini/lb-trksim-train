@@ -27,29 +27,29 @@ jobs:
         uses: landerlini/apptainer-gha-runner/workflow@main
         with:
             profile: |
-            rerun-incomplete: True
-            keep-going: True
+                rerun-incomplete: True
+                keep-going: True
 
-            workdir: notebooks
-            target: preprocessing
-            report: report
+                workdir: notebooks
+                target: preprocessing
+                report: report
 
-            software-deployment-method: apptainer
-            local-storage-prefix: /tmp
-            apptainer-args: -B /home -B /cvmfs -B /tmp --nv --writable-tmpfs --no-mount /usr
-            keep-storage-local-copies: true
+                software-deployment-method: apptainer
+                local-storage-prefix: /tmp
+                apptainer-args: -B /home -B /cvmfs -B /tmp --nv --writable-tmpfs --no-mount /usr
+                keep-storage-local-copies: true
 
-            jobs: 1
-            cores: 8
+                jobs: 1
+                cores: 8
 
-            default-resources:
-              mem_mb: 2000
-              millicpu: 1000
+                default-resources:
+                  mem_mb: 2000
+                  millicpu: 1000
 
-            resources:
-              mem_mb: 64000
-              millicpu: 32000
-              gpu: 1
+                resources:
+                  mem_mb: 64000
+                  millicpu: 32000
+                  gpu: 1
 
 
       - name: Create report
