@@ -12,6 +12,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Restore file timestamps
+        run: |
+          pip install git-restore-mtime
+          git restore-mtime
       
 #      - name: Run preprocessing
 #        uses: landerlini/apptainer-gha-runner/container@main
