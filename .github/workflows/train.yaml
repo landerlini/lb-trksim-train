@@ -26,8 +26,9 @@ jobs:
       - name: Retrieve secrets
         run: |
             mkdir -p /tmp/artifacts
-            echo $SECRETS_YAML > /tmp/artifacts/secrets.yaml
-            echo $TEST_SECRET > /tmp/artifacts/fake_secrets.yaml
+            cat <<EOF > /tmp/artifacts/secrets.yaml
+            ${{ secrets.TEST_SECRET }}
+            EOF
             cat /tmp/artifacts/fake_secrets.yaml
 
       - name: Run preprocessing
