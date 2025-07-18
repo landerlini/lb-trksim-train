@@ -1,0 +1,21 @@
+rerun-incomplete: True
+keep-going: True
+
+software-deployment-method: apptainer
+local-storage-prefix: /tmp
+apptainer-args: -B /home -B /cvmfs -B /tmp --nv --writable-tmpfs --no-mount /usr
+keep-storage-local-copies: true
+
+jobs: 1
+cores: 1
+
+default-resources:
+  mem_mb: 2000
+  millicpu: 1000
+
+resources:
+  mem_mb: 12000000
+  millicpu: 1600000
+  gpu: 1
+
+
