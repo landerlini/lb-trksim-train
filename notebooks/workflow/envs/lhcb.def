@@ -24,7 +24,7 @@ From: python:3.12
         pyarrow \
         jupyter \
         nbconvert \
-        keras \
+        "keras==3.8" \
         tensorflow[and-cuda] \
         pandoc \
         uproot \
