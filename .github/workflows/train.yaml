@@ -55,19 +55,29 @@ jobs:
 
     compile:
       needs: upload_dot_c
+      container: gitlab-registry.cern.ch/lhcb-docker/lhcb-centos7:latest
       strategy:
         matrix:
-          runner: [ubuntu-latest, ubuntu-24.04-arm]
-          container: ["centos:7", "almalinux:9"]
-          optimization: [-O0, -O2]
+          include:
+            - runner: ubuntu-latest
+              arch: x86_64_v2
+              compiler: centos7-gcc9-opt 
+
+            - runner: ubuntu-24.04-arm
+              arch: aarch64
+              compiler: el9-gcc13-opt
 
       runs-on: ${{ matrix.runner }}
-      container: ${{ matrix.container }}
       
       steps:
         - name: Install missing libraries
           run: |
             yum install -y xz gcc
+
+        - name: Mount CVMFS
+          uses: cvmfs-contrib/github-action-cvmfs@v2
+          with:
+            cvmfs_repositories: 'lhcb.cern.ch,cernvm-prod.cern.ch'
  
         - name: Download artifact
           uses: actions/download-artifact@v4
@@ -75,9 +85,12 @@ jobs:
             name: compiled_model.C.xz
             path: ./artifact
     
-        - name: Compile with GCC
+        - name: Compile for ${{ matrix.arch }}-${{ matrix.compiler }}
           run: |
             xz -f artifact/compiled_model.C.xz
+            export BINARY_TAG=${{ matrix.arch }}-${{ matrix.compiler }}
+            source /cvmfs/lhcb.cern.ch/lib/LbEnv -c $BINARY_TAG
+
             mkdir -p build
             gcc artifact/compiled_model.C \
                 ${{ matrix.optimization }} \
