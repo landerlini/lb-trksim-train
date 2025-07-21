@@ -55,6 +55,7 @@ jobs:
 
     compile:
       needs: upload_dot_c
+      container: harbor.cloud.infn.it/unpacked/aiinfn-gha-runner:latest
 #      container: lhcbdev/centos7-build
       strategy:
         matrix:
@@ -63,9 +64,9 @@ jobs:
               arch: x86_64_v2
               compiler: centos7-gcc9-opt 
 
-            - runner: ubuntu-24.04-arm
-              arch: aarch64
-              compiler: el9-gcc13-opt
+            #- runner: ubuntu-24.04-arm
+            #  arch: aarch64
+            #  compiler: el9-gcc13-opt
 
       runs-on: ${{ matrix.runner }}
       
@@ -81,6 +82,7 @@ jobs:
     
         - name: Compile for ${{ matrix.arch }}-${{ matrix.compiler }}
           run: |
+            cat <<EOF > compile_cmd.sh
             xz -f artifact/compiled_model.C.xz
             export BINARY_TAG=${{ matrix.arch }}-${{ matrix.compiler }}
             source /cvmfs/lhcb.cern.ch/lib/LbEnv -c $BINARY_TAG
@@ -98,6 +100,10 @@ jobs:
                 --shared  \
                 -fPIC \
                 -o build/compiled_model.so  
+            EOF
+            apptainer exec -B/home -B/cvmfs -B/tmp \
+                /cvmfs/lhcb.cern.ch/containers/os-base/centos7-devel/prod \
+                /bin/bash compile_cmd.sh
 
         - name: Upload compiled shared object
           uses: actions/upload-artifact@v4
