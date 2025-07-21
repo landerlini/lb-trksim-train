@@ -28,7 +28,7 @@ jobs:
           run: |
               mkdir -p /tmp/artifacts
               cat <<EOF > /tmp/artifacts/secrets.yaml
-              ${{ secrets.SECRETS_YAML }}
+              ${{ secrets.STORAGE_SECRETS }}
               EOF
 
         - name: compress_file
