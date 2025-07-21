@@ -55,7 +55,7 @@ jobs:
 
     compile:
       needs: upload_dot_c
-      container: harbor.cloud.infn.it/unpacked/aiinfn-gha-runner:latest
+      # container: harbor.cloud.infn.it/unpacked/aiinfn-gha-runner:latest
 #      container: lhcbdev/centos7-build
       strategy:
         matrix:
