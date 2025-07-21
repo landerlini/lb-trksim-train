@@ -6,20 +6,23 @@ on:
       - main
 
 jobs:
-    run-workflow:
-        uses: ./.github/workflows/shared.yaml
-        with:
-            name: deploy
-            target: deploy
-            additional_profile: |
-                rerun-triggers: mtime
-        secrets:
-            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
+    #run-workflow:
+    #    uses: ./.github/workflows/shared.yaml
+    #    with:
+    #        name: deploy
+    #        target: deploy
+    #        additional_profile: |
+    #            rerun-triggers: mtime
+    #    secrets:
+    #        SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
     upload_dot_c:
       runs-on: aiinfn-lamarrsim-gpu
-      needs: run-workflow
+    #  needs: run-workflow
       steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
         - name: Retrieve secrets
           run: |
               mkdir -p /tmp/artifacts

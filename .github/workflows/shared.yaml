@@ -53,7 +53,7 @@ jobs:
                 apptainer-args: -B /home -B /cvmfs -B /tmp --nv --writable-tmpfs --no-mount /usr
                 keep-storage-local-copies: true
 
-                jobs: 1
+                jobs: 2
                 cores: 8
 
                 default-resources:
