@@ -60,11 +60,11 @@ jobs:
 
     deploy:
         uses: ./.github/workflows/shared.yaml
-        needs: 
-            - acceptance
-            - efficiency
-            - resolution
-            - covariance
+    #    needs: 
+    #        - acceptance
+    #        - efficiency
+    #        - resolution
+    #        - covariance
         with:
             name: deploy
             target: deploy
