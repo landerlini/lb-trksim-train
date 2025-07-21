@@ -73,6 +73,7 @@ jobs:
 
     upload_dot_c:
       runs-on: aiinfn-lamarrsim-gpu
+      needs: deploy
       steps:
         - name: Retrieve secrets
           run: |
@@ -83,7 +84,7 @@ jobs:
 
         - name: compress_file
           run: |
-              export SNAKEMAKE_PROFILE=$PWD/workflow/profile/
+              export SNAKEMAKE_PROFILE=$PWD/notebooks/workflow/profile/
               snakemake compress_dotC \
                 --allowed-rules compress_dotC \
                 --jobs 1 \
