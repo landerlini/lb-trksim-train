@@ -3,7 +3,7 @@ keep-going: True
 
 software-deployment-method: apptainer
 local-storage-prefix: /tmp
-apptainer-args: -B /home -B /cvmfs -B /tmp --nv --writable-tmpfs --no-mount /usr -B /home/private/.local/lib/python3.12/site-packages/scikinC:/usr/local/lib/python3.12/site-packages/scikinC/
+apptainer-args: -B /home -B /cvmfs -B /tmp --nv --writable-tmpfs --no-mount /usr 
 keep-storage-local-copies: true
 
 jobs: 1

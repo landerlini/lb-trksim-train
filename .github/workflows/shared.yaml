@@ -33,12 +33,6 @@ jobs:
 
       - name: Fixes the environment
         run: |
-            unset SINGULARITY_BIND 
-            unset APPTAINER_BIND 
-            unset SINGULARITY_NO_EVAL 
-            unset APPTAINER_NO_EVAL 
-            export SINGULARITY_CACHEDIR=/cache
-            export APPTAINER_CACHEDIR=/cache
 
       - name: Snakemake workflow
         uses: landerlini/apptainer-gha-runner/workflow@main
