@@ -70,10 +70,6 @@ jobs:
       runs-on: ${{ matrix.runner }}
       
       steps:
-        - name: Install missing libraries
-          run: |
-            yum install -y xz gcc
-
         - name: Mount CVMFS
           uses: cvmfs-contrib/github-action-cvmfs@v2
           with:
