@@ -67,20 +67,19 @@ jobs:
       steps:
         - name: Install missing libraries
           run: |
-            apt-get update 
-            apt-get install -y xz gcc
+            yum install -y xz gcc
  
         - name: Download artifact
           uses: actions/download-artifact@v4
           with:
             name: compiled_model.C.xz
-            path: ./compiled_model.C.xz
+            path: ./artifact
     
         - name: Compile with GCC
           run: |
-            xz -f compiled_model.C.xz
+            xz -f artifact/compiled_model.C.xz
             mkdir -p build
-            gcc compiled_model.C \
+            gcc artifact/compiled_model.C \
                 ${{ matrix.optimization }} \
                 -D RESOLUTION_NUM_FEATURES=12  \
                 -D RESOLUTION_NUM_OUTPUTS=9  \
@@ -88,7 +87,6 @@ jobs:
                 -D COVARIANCE_NUM_FEATURES=15  \
                 -D COVARIANCE_NUM_OUTPUTS=15  \
                 -D COVARIANCE_NUM_RANDOM=128  \
-                -o /tmp/compiled_model.so  \
                 -lm  \
                 --shared  \
                 -fPIC \
