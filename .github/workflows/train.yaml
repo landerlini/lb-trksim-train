@@ -21,7 +21,7 @@ jobs:
             name: acceptance
             target: validate_acceptance
         secrets:
-            SECRETS_YAML: ${{ secrets.SECRETS_YAML }}
+            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
     efficiency:
         uses: ./.github/workflows/shared.yaml
@@ -30,7 +30,7 @@ jobs:
             name: efficiency
             target: validate_efficiency
         secrets:
-            SECRETS_YAML: ${{ secrets.SECRETS_YAML }}
+            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
     
 
