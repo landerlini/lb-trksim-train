@@ -7,11 +7,12 @@ on:
 
 jobs:
     preprocessing:
-        environment: full-train
         uses: ./.github/workflows/shared.yaml
         with:
             name: preprocessing
             target: preprocessing
+        secrets:
+            SECRETS_YAML: ${{ secrets.SECRETS_YAML }}
 
     acceptance:
         uses: ./.github/workflows/shared.yaml
@@ -19,6 +20,8 @@ jobs:
         with:
             name: acceptance
             target: validate_acceptance
+        secrets:
+            SECRETS_YAML: ${{ secrets.SECRETS_YAML }}
 
     efficiency:
         uses: ./.github/workflows/shared.yaml
@@ -26,6 +29,8 @@ jobs:
         with:
             name: efficiency
             target: validate_efficiency
+        secrets:
+            SECRETS_YAML: ${{ secrets.SECRETS_YAML }}
 
     
 
