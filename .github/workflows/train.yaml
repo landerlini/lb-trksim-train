@@ -54,22 +54,48 @@ jobs:
             path: /tmp/compiled_model.C.xz
 
     compile:
-      runs-on: ubuntu-latest
       strategy:
         matrix:
-          vm: [ubuntu-latest, ubuntu-24.04-arm]
+          runner: [ubuntu-latest, ubuntu-24.04-arm]
           container: ["centos:7", "alma:9"]
           optimization: [-O0, -O2]
 
+      runs-on: ${{ matrix.runner }}
+      container: ${{ matrix.container }}
+      
       steps:
         - name: Install missing libraries
           run: |
             sudo apt-get update 
-            sudo apt-get install -y xz-utils gcc
+            sudo apt-get install -y xz gcc
  
         - name: Download artifact
           uses: actions/download-artifact@v4
           with:
-            name: my-artifact
-            path: ./downloaded
+            name: compiled_model.C.xz
+            path: ./compiled_model.C.xz
+    
+        - name: Compile with GCC
+          run: |
+            xz -f compiled_model.C.xz
+            mkdir -p build
+            gcc compiled_model.C \
+                ${{ matrix.optimization }} \
+                -D RESOLUTION_NUM_FEATURES=12  \
+                -D RESOLUTION_NUM_OUTPUTS=9  \
+                -D RESOLUTION_NUM_RANDOM=128  \
+                -D COVARIANCE_NUM_FEATURES=15  \
+                -D COVARIANCE_NUM_OUTPUTS=15  \
+                -D COVARIANCE_NUM_RANDOM=128  \
+                -o /tmp/compiled_model.so  \
+                -lm  \
+                --shared  \
+                -fPIC \
+                -o build/compiled_model.so  
+
+        - name: Upload compiled shared object
+          uses: actions/upload-artifact@v4
+          with:
+            path: build/compiled_model.so
+            name: trk-${{ matrix.runner }}-${{ matrix.container }}${{ matrix.optimization }}.so
 
