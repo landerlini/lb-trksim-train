@@ -73,6 +73,10 @@ jobs:
       steps:
         - name: Mount CVMFS
           uses: cvmfs-contrib/github-action-cvmfs@v4
+
+        - uses: eWaterCycle/setup-apptainer@v2
+          with:
+            apptainer-version: 1.3.6
  
         - name: Download artifact
           uses: actions/download-artifact@v4
