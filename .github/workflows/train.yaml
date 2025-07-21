@@ -12,7 +12,7 @@ jobs:
             name: preprocessing
             target: preprocessing
         secrets:
-            SECRETS_YAML: ${{ secrets.SECRETS_YAML }}
+            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
     acceptance:
         uses: ./.github/workflows/shared.yaml
