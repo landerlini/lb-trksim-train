@@ -24,7 +24,7 @@ jobs:
         - name: Install missing libraries
           run: |
             sudo apt-get update 
-            sudo apt-get install xz-utils
+            sudo apt-get install -y xz-utils
  
         - name: Checkout repository
           uses: actions/checkout@v4
@@ -52,4 +52,24 @@ jobs:
           with:
             name: compiled_model.C.xz
             path: /tmp/compiled_model.C.xz
+
+    compile:
+      runs-on: ubuntu-latest
+      strategy:
+        matrix:
+          vm: [ubuntu-latest, ubuntu-24.04-arm]
+          container: ["centos:7", "alma:9"]
+          optimization: [-O0, -O2]
+
+      steps:
+        - name: Install missing libraries
+          run: |
+            sudo apt-get update 
+            sudo apt-get install -y xz-utils gcc
+ 
+        - name: Download artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: my-artifact
+            path: ./downloaded
 
