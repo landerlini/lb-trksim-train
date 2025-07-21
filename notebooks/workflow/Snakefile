@@ -442,6 +442,7 @@ rule deploy:
         
     output:
         generated_c_file=smkstore("compiled_model.C", 's3models'),
+        generated_library=smkstore("compiled_model.so", 's3models'),
         report=report(
             smkstore("deploy.html", 's3reports'),
             category="Deployment",
@@ -450,7 +451,6 @@ rule deploy:
        
     log:
         report=smkstore("deploy.html", 's3reports'),
-        generated_library="exported/generated.so",
            
     resources:
         gpu=0
@@ -468,7 +468,7 @@ rule deploy:
         RESOLUTION_TEST_DATA='{input.resolution_data}' \
         COVARIANCE_REST_DATA='{input.covariance_data}' \
         GENERATED_C_FILE='{output.generated_c_file}' \
-        GENERATED_LIBRARY='{log.generated_library}' \
+        GENERATED_LIBRARY='{output.generated_library}' \
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
         --ExecutePreprocessor.kernel_name=python3 \
