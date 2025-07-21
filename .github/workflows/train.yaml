@@ -6,107 +6,129 @@ on:
       - main
 
 jobs:
-  run-snakemake:
-    environment: full-train
-    runs-on: aiinfn-lamarrsim-gpu
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Restore file timestamps
-        run: |
-            git log -1 --format="%at" -- notebooks/workflow/envs/lhcb.def
-
-#      - name: Run preprocessing
-#        uses: landerlini/apptainer-gha-runner/container@main
-#        with:
-#            image: "/cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/"
-#            run: |
-#                cd notebooks 
-#                export SNAKEMAKE_PROFILE=workflow/profile
-#                snakemake preprocessing
-#                snakemake preprocessing --report
-
-      - name: Retrieve secrets
-        run: |
-            mkdir -p /tmp/artifacts
-            cat <<EOF > /tmp/artifacts/secrets.yaml
-            ${{ secrets.SECRETS_YAML }}
-            EOF
-
-      - name: Acceptance and efficiency
-        uses: landerlini/apptainer-gha-runner/workflow@main
+    preprocessing:
+        uses: ./.github/workflows/shared.yml
         with:
-            workdir: notebooks
-            target: preprocessing validate_acceptance validate_efficiency
-            report: report
-            snakefile: workflow/Snakefile
-            config: |
-                secrets_file: /tmp/artifacts/secrets.yaml
-            profile: |
-                rerun-incomplete: True
-                keep-going: True
+            name: preprocessing
+            target: preprocessing
 
-                software-deployment-method: apptainer
-                local-storage-prefix: /tmp
-                apptainer-args: -B /home -B /cvmfs -B /tmp --nv --writable-tmpfs --no-mount /usr
-                keep-storage-local-copies: true
-
-                jobs: 1
-                cores: 8
-
-                default-resources:
-                  mem_mb: 2000
-                  millicpu: 1000
-
-                resources:
-                  mem_mb: 64000
-                  millicpu: 32000
-                  gpu: 1
-
-      - name: Resolution and covariance
-        uses: landerlini/apptainer-gha-runner/workflow@main
+    acceptance:
+        uses: ./.github/workflows/shared.yml
+        needs: preprocessing
         with:
-            workdir: notebooks
-            target: preprocessing_gan train_resolution train_covariance
-            report: report
-            snakefile: workflow/Snakefile
-            config: |
-                secrets_file: /tmp/artifacts/secrets.yaml
-            profile: |
-                rerun-incomplete: True
-                keep-going: True
+            name: acceptance
+            target: validate_acceptance
 
-                software-deployment-method: apptainer
-                local-storage-prefix: /tmp
-                apptainer-args: -B /home -B /cvmfs -B /tmp --nv --writable-tmpfs --no-mount /usr
-                keep-storage-local-copies: true
+    efficiency:
+        uses: ./.github/workflows/shared.yml
+        needs: preprocessing
+        with:
+            name: efficiency
+            target: validate_efficiency
 
-                jobs: 1
-                cores: 8
+    
 
-                default-resources:
-                  mem_mb: 2000
-                  millicpu: 1000
-
-                resources:
-                  mem_mb: 64000
-                  millicpu: 32000
-                  gpu: 1
-
-
-
-    #  - name: Run test workflow
-    #    uses: landerlini/apptainer-gha-runner/workflow@main
-    #    with:
-    #        workdir: notebooks
-    #        target: example.md
-    #        report: report
-    #        profile: |
-    #            cores: 1
-    #            forceall: true
-    #
-                
-
-        
-
+#   run-snakemake:
+#     environment: full-train
+#     runs-on: aiinfn-lamarrsim-gpu
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+# 
+#       - name: Restore file timestamps
+#         run: |
+#             git log -1 --format="%at" -- notebooks/workflow/envs/lhcb.def
+# 
+# #      - name: Run preprocessing
+# #        uses: landerlini/apptainer-gha-runner/container@main
+# #        with:
+# #            image: "/cvmfs/unpacked.infn.it/harbor.cloud.infn.it/unpacked/jlab-ai-infn:2.0.0-ai1.3/"
+# #            run: |
+# #                cd notebooks 
+# #                export SNAKEMAKE_PROFILE=workflow/profile
+# #                snakemake preprocessing
+# #                snakemake preprocessing --report
+# 
+#       - name: Retrieve secrets
+#         run: |
+#             mkdir -p /tmp/artifacts
+#             cat <<EOF > /tmp/artifacts/secrets.yaml
+#             ${{ secrets.SECRETS_YAML }}
+#             EOF
+# 
+#       - name: Acceptance and efficiency
+#         uses: landerlini/apptainer-gha-runner/workflow@main
+#         with:
+#             workdir: notebooks
+#             target: preprocessing validate_acceptance validate_efficiency
+#             report: report
+#             snakefile: workflow/Snakefile
+#             config: |
+#                 secrets_file: /tmp/artifacts/secrets.yaml
+#             profile: |
+#                 rerun-incomplete: True
+#                 keep-going: True
+# 
+#                 software-deployment-method: apptainer
+#                 local-storage-prefix: /tmp
+#                 apptainer-args: -B /home -B /cvmfs -B /tmp --nv --writable-tmpfs --no-mount /usr
+#                 keep-storage-local-copies: true
+# 
+#                 jobs: 1
+#                 cores: 8
+# 
+#                 default-resources:
+#                   mem_mb: 2000
+#                   millicpu: 1000
+# 
+#                 resources:
+#                   mem_mb: 64000
+#                   millicpu: 32000
+#                   gpu: 1
+# 
+#       - name: Resolution and covariance
+#         uses: landerlini/apptainer-gha-runner/workflow@main
+#         with:
+#             workdir: notebooks
+#             target: preprocessing_gans train_resolution train_covariance
+#             report: report
+#             snakefile: workflow/Snakefile
+#             config: |
+#                 secrets_file: /tmp/artifacts/secrets.yaml
+#             profile: |
+#                 rerun-incomplete: True
+#                 keep-going: True
+# 
+#                 software-deployment-method: apptainer
+#                 local-storage-prefix: /tmp
+#                 apptainer-args: -B /home -B /cvmfs -B /tmp --nv --writable-tmpfs --no-mount /usr
+#                 keep-storage-local-copies: true
+# 
+#                 jobs: 1
+#                 cores: 8
+# 
+#                 default-resources:
+#                   mem_mb: 2000
+#                   millicpu: 1000
+# 
+#                 resources:
+#                   mem_mb: 64000
+#                   millicpu: 32000
+#                   gpu: 1
+# 
+# 
+# 
+#     #  - name: Run test workflow
+#     #    uses: landerlini/apptainer-gha-runner/workflow@main
+#     #    with:
+#     #        workdir: notebooks
+#     #        target: example.md
+#     #        report: report
+#     #        profile: |
+#     #            cores: 1
+#     #            forceall: true
+#     #
+#                 
+# 
+#         
+# 
