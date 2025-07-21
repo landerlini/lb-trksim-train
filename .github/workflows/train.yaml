@@ -21,6 +21,11 @@ jobs:
       container: harbor.cloud.infn.it/unpacked/aiinfn-gha-runner:latest
     #  needs: run-workflow
       steps:
+        - name: Install missing libraries
+          run: |
+            sudo apt-get update 
+            sudo apt-get install xz-utils
+ 
         - name: Checkout repository
           uses: actions/checkout@v4
 
