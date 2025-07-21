@@ -87,7 +87,7 @@ jobs:
         - name: Compile for ${{ matrix.arch }}-${{ matrix.compiler }}
           run: |
             cat <<EOF > compile_cmd.sh
-            xz -f artifact/compiled_model.C.xz
+            xz -d artifact/compiled_model.C.xz
             export BINARY_TAG=${{ matrix.arch }}-${{ matrix.compiler }}
             source /cvmfs/lhcb.cern.ch/lib/LbEnv -c $BINARY_TAG
 
