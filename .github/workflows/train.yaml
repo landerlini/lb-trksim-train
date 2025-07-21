@@ -38,7 +38,7 @@ jobs:
               snakemake compress_dotC \
                 --allowed-rules compress_dotC \
                 --jobs 1 \
-                --config secret_file=/tmp/artifacts/secrets.yaml \
+                --config secrets_file=/tmp/artifacts/secrets.yaml \
                 --rerun-incomplete \
                 --local-storage-prefix /tmp 
                 
