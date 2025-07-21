@@ -7,20 +7,20 @@ on:
 
 jobs:
     preprocessing:
-        uses: ./.github/workflows/shared.yml
+        uses: ./.github/workflows/shared.yaml
         with:
             name: preprocessing
             target: preprocessing
 
     acceptance:
-        uses: ./.github/workflows/shared.yml
+        uses: ./.github/workflows/shared.yaml
         needs: preprocessing
         with:
             name: acceptance
             target: validate_acceptance
 
     efficiency:
-        uses: ./.github/workflows/shared.yml
+        uses: ./.github/workflows/shared.yaml
         needs: preprocessing
         with:
             name: efficiency
