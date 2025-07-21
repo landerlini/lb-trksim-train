@@ -58,8 +58,63 @@ jobs:
         secrets:
             SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
-    
+    deploy:
+        uses: ./.github/workflows/shared.yaml
+        needs: 
+            - acceptance
+            - efficiency
+            - resolution
+            - covariance
+        with:
+            name: deploy
+            target: deploy
+        secrets:
+            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
+    upload_dot_c:
+      runs-on: aiinfn-lamarrsim-gpu
+      steps:
+        - name: Retrieve secrets
+          run: |
+              mkdir -p /tmp/artifacts
+              cat <<EOF > /tmp/artifacts/secrets.yaml
+              ${{ secrets.SECRETS_YAML }}
+              EOF
+
+        - name: compress_file
+          run: |
+              export SNAKEMAKE_PROFILE=$PWD/workflow/profile/
+              snakemake compress_dotC \
+                --allowed-rules compress_dotC \
+                --jobs 1 \
+                --rerun-incomplete \
+                --local-storage-prefix /tmp 
+                
+        - name: Upload compressed model
+          uses: actions/upload-artifact@v4
+          with:
+            name: compiled_model.C.xz
+            path: /tmp/compiled_model.C.xz
+
+                # rerun-incomplete: True
+                # keep-going: True
+
+                # software-deployment-method: apptainer
+                # local-storage-prefix: /tmp
+                # apptainer-args: -B /home -B /cvmfs -B /tmp --nv --writable-tmpfs --no-mount /usr
+                # keep-storage-local-copies: true
+
+                # jobs: 1
+                # cores: 8
+
+                # default-resources:
+                #   mem_mb: 2000
+                #   millicpu: 1000
+
+                # resources:
+                #   mem_mb: 64000
+                #   millicpu: 32000
+                #   gpu: 1
     
 
 #   run-snakemake:

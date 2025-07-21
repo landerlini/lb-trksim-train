@@ -441,8 +441,7 @@ rule deploy:
 
         
     output:
-        generated_c_file="/tmp/exported/generated.C",
-        generated_library="exported/generated.so",
+        generated_c_file=smkstore("compiled_model.C", 's3models'),
         report=report(
             smkstore("deploy.html", 's3reports'),
             category="Deployment",
@@ -450,7 +449,8 @@ rule deploy:
             )
        
     log:
-        report=smkstore("deploy.html", 's3reports')
+        report=smkstore("deploy.html", 's3reports'),
+        generated_library="exported/generated.so",
            
     resources:
         gpu=0
@@ -468,24 +468,24 @@ rule deploy:
         RESOLUTION_TEST_DATA='{input.resolution_data}' \
         COVARIANCE_REST_DATA='{input.covariance_data}' \
         GENERATED_C_FILE='{output.generated_c_file}' \
-        GENERATED_LIBRARY='{output.generated_library}' \
+        GENERATED_LIBRARY='{log.generated_library}' \
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
         --ExecutePreprocessor.kernel_name=python3 \
         --no-input --no-prompt  \
-        {input.notebook} --output {log}
+        {input.notebook} --output {log.report}
         """
 
 rule compress_dotC:
     input:
-        generated_c="exported/generated.C"
+        generated_c_file=smkstore("compiled_model.C", 's3models'),
 
     output:
-       compressed_c="/tmp/exported/generated.C.xz"
+        compressed_c="/tmp/compiled_model.C.xz", 
 
     shell: 
         """
-        xz -9e -T0 -c -k {input.generated_c} > {output.compressed_c}
+        xz -9e -T0 -c -k {input.generated_c_file} > {output.compressed_c}
         """
 
      
