@@ -55,7 +55,7 @@ jobs:
 
     compile:
       needs: upload_dot_c
-      container: gitlab-registry.cern.ch/lhcb-docker/lhcb-centos7:latest
+      container: lhcbdev/centos7-build
       strategy:
         matrix:
           include:
