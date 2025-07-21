@@ -17,7 +17,8 @@ jobs:
     #        SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
     upload_dot_c:
-      runs-on: aiinfn-lamarrsim-gpu
+      runs-on: ubuntu-latest
+      container: harbor.cloud.infn.it/unpacked/aiinfn-gha-runner:latest
     #  needs: run-workflow
       steps:
         - name: Checkout repository
