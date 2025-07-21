@@ -7,15 +7,14 @@ on:
 
 jobs:
     preprocessing:
-        uses: ./.github/workflows/shared.yaml
         environment: full-train
+        uses: ./.github/workflows/shared.yaml
         with:
             name: preprocessing
             target: preprocessing
 
     acceptance:
         uses: ./.github/workflows/shared.yaml
-        environment: full-train
         needs: preprocessing
         with:
             name: acceptance
@@ -23,7 +22,6 @@ jobs:
 
     efficiency:
         uses: ./.github/workflows/shared.yaml
-        environment: full-train
         needs: preprocessing
         with:
             name: efficiency

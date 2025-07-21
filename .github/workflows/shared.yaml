@@ -11,6 +11,7 @@ on:
 
 jobs:
   run-snakemake:
+    environment: full-train
     runs-on: aiinfn-lamarrsim-gpu
     steps:
       - name: Checkout repository
