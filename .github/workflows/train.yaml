@@ -31,19 +31,14 @@ jobs:
               ${{ secrets.SECRETS_YAML }}
               EOF
 
-        - name: Set configuration paths
-          shell: bash
-          run: |
-            # Set configuration paths
-            echo "SNAKEMAKE_PROFILE=/tmp/snakemake-profiles/profile-gha-$RANDOM" >> $GITHUB_ENV
-            echo "WORKFLOW_CONFIG=/tmp/workflow-configs/config-gha-$RANDOM/config.yaml" >> $GITHUB_ENV
-
         - name: compress_file
           run: |
               cd notebooks
+              export SNAKEMAKE_PROFILE=$PWD//workflow/profile/
               snakemake compress_dotC \
                 --allowed-rules compress_dotC \
                 --jobs 1 \
+                --config secret_file=/tmp/artifacts/secrets.yaml \
                 --rerun-incomplete \
                 --local-storage-prefix /tmp 
                 
