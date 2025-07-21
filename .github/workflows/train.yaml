@@ -33,6 +33,7 @@ jobs:
 
         - name: compress_file
           run: |
+              cd notebooks
               export SNAKEMAKE_PROFILE=$PWD/notebooks/workflow/profile/
               snakemake compress_dotC \
                 --allowed-rules compress_dotC \
