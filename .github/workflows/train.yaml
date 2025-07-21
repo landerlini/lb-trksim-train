@@ -18,7 +18,7 @@ jobs:
 
     upload_dot_c:
       runs-on: aiinfn-lamarrsim-gpu
-      needs: deploy
+      needs: run-workflow
       steps:
         - name: Retrieve secrets
           run: |
