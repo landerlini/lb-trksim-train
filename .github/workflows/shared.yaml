@@ -9,6 +9,7 @@ on:
         required: true
         type: string
       additional_profile:
+        type: string
         required: false
         default: ""
 
