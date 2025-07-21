@@ -74,9 +74,19 @@ jobs:
         - name: Mount CVMFS
           uses: cvmfs-contrib/github-action-cvmfs@v4
 
-        - uses: eWaterCycle/setup-apptainer@v2
-          with:
-            apptainer-version: 1.3.6
+        # - uses: eWaterCycle/setup-apptainer@v2
+        #   with:
+        #     apptainer-version: 1.3.6
+
+        - name: Build apptainer
+          run: |
+            git clone https://github.com/apptainer/apptainer.git
+            cd apptainer
+            git checkout v1.4.1
+            ./mconfig
+            make -C builddir
+            sudo make -C builddir install
+
  
         - name: Download artifact
           uses: actions/download-artifact@v4
