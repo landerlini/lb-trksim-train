@@ -424,3 +424,57 @@ rule validate_covariance:
         --no-input --no-prompt --allow-errors  \
         {input.notebook} --output {log}
         """
+
+
+################################################################################
+## Deployment 
+
+rule deploy:
+    input:
+        notebook="Deploy.ipynb",
+
+        acceptance_model=ancient(smkstore("acceptance/model.keras", 's3models')),
+        acceptance_data=ancient("/tmp/acceptance-validation"),
+        efficiency_model=ancient(smkstore("efficiency/model.keras", 's3models')),
+        efficiency_data=ancient("/tmp/efficiency-validation"),
+        resolution_model=ancient(smkstore("resolution/model.keras", 's3models')),
+        resolution_data=ancient("/tmp/resolution-validation"),
+        covariance_model=ancient(smkstore("covariance/model.keras", 's3models')),
+        covariance_data=ancient("/tmp/covariance-validation"),
+
+       
+    log:
+        report="reports/deploy.html"
+        
+    output:
+        generated_c_file="exported/generated.C",
+        generated_library="exported/generated.so"
+           
+    resources:
+        gpu=0
+    
+    shell:
+        """
+        ACCEPTANCE_MODEL='{input.acceptance_model}' \
+        EFFICIENCY_MODEL='{input.efficiency_model}' \
+        RESOLUTION_MODEL='{input.resolution_model}' \
+        COVARIANCE_MODEL='{input.covariance_model}' \
+        ACCEPTANCE_TEST_DATA='{input.acceptance_data}' \
+        EFFICIENCY_TEST_DATA='{input.efficiency_data}' \
+        RESOLUTION_TEST_DATA='{input.resolution_data}' \
+        COVARIANCE_REST_DATA='{input.covariance_data}' \
+        GENERATED_C_FILE='{output.generated_c_file}' \
+        GENERATED_LIBRARY='{output.generated_library}' \
+        jupyter nbconvert --to html --execute \
+        --ExecutePreprocessor.timeout=-1 \
+        --ExecutePreprocessor.kernel_name=LHCb \
+        --no-input --no-prompt  \
+        {input.notebook} --output {log}
+        """
+
+rule compress_dotC:
+    input:
+        generated_c="exported/generated.C"
+
+    output:
+        
