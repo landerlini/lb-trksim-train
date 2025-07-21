@@ -321,9 +321,11 @@ rule validate_resolution:
     input:
         notebook="workflow/notebooks/Resolution-validation.ipynb",
         test_data="/tmp/resolution-test",
-        model_pb=smkstore("resolution/saved_model.pb", 's3models'),
+        model_pb=smkstore("resolution/model.keras", 's3models'),
         preprocessing_x=smkstore("resolution/tX.pkl", "s3models"),
         preprocessing_y=smkstore("resolution/tY.pkl", "s3models"),
+
+    output:
         report=report(
             smkstore("validate_resolution.html", 's3reports'),
             category="Validation",
@@ -389,11 +391,13 @@ rule train_covariance:
 
 rule validate_covariance:
     input:
-        notebook="/workflow/notebooks/Covariance-validation.ipynb",
+        notebook="workflow/notebooks/Covariance-validation.ipynb",
         test_data="/tmp/covariance-test",
-        model_pb=smkstore("covariance/saved_model.pb", 's3models'),
+        model_pb=smkstore("covariance/model.keras", 's3models'),
         preprocessing_x=smkstore("covariance/tX.pkl", "s3models"),
         preprocessing_y=smkstore("covariance/tY.pkl", "s3models"),
+
+    output:
         report=report(
             smkstore("validate_covariance.html", 's3reports'),
             category="Validation",
