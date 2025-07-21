@@ -44,7 +44,7 @@ jobs:
         uses: ./.github/workflows/shared.yaml
         needs: preprocessing_gans
         with:
-            name: acceptance
+            name: resolution
             target: validate_resolution
         secrets:
             SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
@@ -53,7 +53,7 @@ jobs:
         uses: ./.github/workflows/shared.yaml
         needs: preprocessing_gans
         with:
-            name: efficiency
+            name: covariance
             target: validate_covariance
         secrets:
             SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}

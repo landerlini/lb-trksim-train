@@ -426,32 +426,36 @@ rule validate_covariance:
         """
 
 
-################################################################################
-## Deployment 
 
 rule deploy:
     input:
-        notebook="Deploy.ipynb",
-
+        notebook="workflow/notebooks/Deploy.ipynb",
         acceptance_model=ancient(smkstore("acceptance/model.keras", 's3models')),
-        acceptance_data=ancient("/tmp/acceptance-validation"),
+        acceptance_data="/tmp/acceptance-validation",
         efficiency_model=ancient(smkstore("efficiency/model.keras", 's3models')),
-        efficiency_data=ancient("/tmp/efficiency-validation"),
+        efficiency_data="/tmp/efficiency-validation",
         resolution_model=ancient(smkstore("resolution/model.keras", 's3models')),
-        resolution_data=ancient("/tmp/resolution-validation"),
+        resolution_data="/tmp/resolution-validation",
         covariance_model=ancient(smkstore("covariance/model.keras", 's3models')),
-        covariance_data=ancient("/tmp/covariance-validation"),
+        covariance_data="/tmp/covariance-validation",
 
-       
-    log:
-        report="reports/deploy.html"
         
     output:
-        generated_c_file="exported/generated.C",
-        generated_library="exported/generated.so"
+        generated_c_file="/tmp/exported/generated.C",
+        generated_library="exported/generated.so",
+        report=report(
+            smkstore("deploy.html", 's3reports'),
+            category="Deployment",
+            labels=dict(model='all')
+            )
+       
+    log:
+        report=smkstore("deploy.html", 's3reports')
            
     resources:
         gpu=0
+
+    container: smkstore("lamarr-train.sif", '/tmp/images')
     
     shell:
         """
@@ -467,7 +471,7 @@ rule deploy:
         GENERATED_LIBRARY='{output.generated_library}' \
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
-        --ExecutePreprocessor.kernel_name=LHCb \
+        --ExecutePreprocessor.kernel_name=python3 \
         --no-input --no-prompt  \
         {input.notebook} --output {log}
         """
@@ -477,4 +481,11 @@ rule compress_dotC:
         generated_c="exported/generated.C"
 
     output:
-        
+       compressed_c="/tmp/exported/generated.C.xz"
+
+    shell: 
+        """
+        xz -9e -T0 -c -k {input.generated_c} > {output.compressed_c}
+        """
+
+     
