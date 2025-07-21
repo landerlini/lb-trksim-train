@@ -58,7 +58,7 @@ jobs:
       strategy:
         matrix:
           runner: [ubuntu-latest, ubuntu-24.04-arm]
-          container: ["centos:7", "alma:9"]
+          container: ["centos:7", "almalinux:9"]
           optimization: [-O0, -O2]
 
       runs-on: ${{ matrix.runner }}
