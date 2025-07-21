@@ -68,6 +68,8 @@ jobs:
         with:
             name: deploy
             target: deploy
+            additional_profile: |
+                allowed-rules: deploy
         secrets:
             SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 

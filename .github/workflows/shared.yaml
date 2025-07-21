@@ -8,6 +8,9 @@ on:
       target:
         required: true
         type: string
+      additional_profile:
+        required: false
+        default: ""
 
     secrets:
         SECRETS_YAML:
@@ -61,5 +64,6 @@ jobs:
                   millicpu: 32000
                   gpu: 1
 
+                ${{ inputs.additional_profile }}
         
 
