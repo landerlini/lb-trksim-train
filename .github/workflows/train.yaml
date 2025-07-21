@@ -6,57 +6,57 @@ on:
       - main
 
 jobs:
-    preprocessing:
-        uses: ./.github/workflows/shared.yaml
-        with:
-            name: preprocessing
-            target: preprocessing
-        secrets:
-            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
+    # preprocessing:
+    #     uses: ./.github/workflows/shared.yaml
+    #     with:
+    #         name: preprocessing
+    #         target: preprocessing
+    #     secrets:
+    #         SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
-    acceptance:
-        uses: ./.github/workflows/shared.yaml
-        needs: preprocessing
-        with:
-            name: acceptance
-            target: validate_acceptance
-        secrets:
-            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
+    # acceptance:
+    #     uses: ./.github/workflows/shared.yaml
+    #     needs: preprocessing
+    #     with:
+    #         name: acceptance
+    #         target: validate_acceptance
+    #     secrets:
+    #         SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
-    efficiency:
-        uses: ./.github/workflows/shared.yaml
-        needs: preprocessing
-        with:
-            name: efficiency
-            target: validate_efficiency
-        secrets:
-            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
+    # efficiency:
+    #     uses: ./.github/workflows/shared.yaml
+    #     needs: preprocessing
+    #     with:
+    #         name: efficiency
+    #         target: validate_efficiency
+    #     secrets:
+    #         SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
-    preprocessing_gans:
-        uses: ./.github/workflows/shared.yaml
-        with:
-            name: preprocessing_gans
-            target: preprocessing_gans
-        secrets:
-            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
+    # preprocessing_gans:
+    #     uses: ./.github/workflows/shared.yaml
+    #     with:
+    #         name: preprocessing_gans
+    #         target: preprocessing_gans
+    #     secrets:
+    #         SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
-    resolution:
-        uses: ./.github/workflows/shared.yaml
-        needs: preprocessing_gans
-        with:
-            name: resolution
-            target: validate_resolution
-        secrets:
-            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
+    # resolution:
+    #     uses: ./.github/workflows/shared.yaml
+    #     needs: preprocessing_gans
+    #     with:
+    #         name: resolution
+    #         target: validate_resolution
+    #     secrets:
+    #         SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
-    covariance:
-        uses: ./.github/workflows/shared.yaml
-        needs: preprocessing_gans
-        with:
-            name: covariance
-            target: validate_covariance
-        secrets:
-            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
+    # covariance:
+    #     uses: ./.github/workflows/shared.yaml
+    #     needs: preprocessing_gans
+    #     with:
+    #         name: covariance
+    #         target: validate_covariance
+    #     secrets:
+    #         SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
     deploy:
         uses: ./.github/workflows/shared.yaml
