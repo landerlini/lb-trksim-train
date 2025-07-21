@@ -68,8 +68,6 @@ jobs:
         with:
             name: deploy
             target: deploy
-            additional_profile: |
-                allowed-rules: deploy,preprocessing,preprocessing_gans,cache_container
         secrets:
             SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
