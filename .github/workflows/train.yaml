@@ -55,7 +55,7 @@ jobs:
 
     compile:
       needs: upload_dot_c
-      container: lhcbdev/centos7-build
+#      container: lhcbdev/centos7-build
       strategy:
         matrix:
           include:
