@@ -5,7 +5,7 @@ on:
       name:
         required: true
         type: string
-      targets:
+      target:
         required: true
         type: string
 
@@ -32,7 +32,7 @@ jobs:
         uses: landerlini/apptainer-gha-runner/workflow@main
         with:
             workdir: notebooks
-            target: ${{ inputs.targets }}
+            target: ${{ inputs.target }}
             report: report-${{ inputs.name }}
             snakefile: workflow/Snakefile
             config: |
