@@ -154,6 +154,7 @@ jobs:
             env:
               GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             run: |
+              echo "RELEASE_TIMESTAMP=$(date +'%Y-%m-%dT%Hh%Mm%S')" >> $GITHUB_ENV
               gh pr list --head ${{ github.head_ref }} --limit 1 --json number,body \
                 --jq '.[0].body' > pr_description.md
 
@@ -162,8 +163,8 @@ jobs:
               GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             uses: ncipollo/release-action@v1
             with:
-              tag: ${{ github.head_ref }}
-              name: Release ${{ github.head_ref }}
+              tag: ${{ github.head_ref }}-${{ env.RELEASE_TIMESTAMP }}
+              name: Release ${{ github.head_ref }}-${{ env.RELEASE_TIMESTAMP }} 
               bodyFile: pr_description.md
               artifacts: artifact/*/*.so
               artifactContentType: raw
