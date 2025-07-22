@@ -138,6 +138,19 @@ jobs:
             with:
               path: ./artifact
 
+          - name: Install GitHub CLI
+            run: sudo apt-get update && sudo apt-get install -y gh
+
+          - name: Authenticate GitHub CLI
+            env:
+              GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            run: gh auth login --with-token <<< "$GH_TOKEN"
+
+          - name: Fetch latest merged PR description
+            run: |
+              gh pr list --state merged --limit 1 --json number,body \
+                --jq '.[0].body' > pr_description.md
+
           - name: Create GitHub Release
             uses: ncipollo/release-action@v1
             with:
