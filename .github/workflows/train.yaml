@@ -88,10 +88,6 @@ jobs:
         - name: Mount CVMFS
           uses: cvmfs-contrib/github-action-cvmfs@v4
 
-        # - uses: eWaterCycle/setup-apptainer@v2
-        #   with:
-        #     apptainer-version: 1.3.6
-
         - name: Build apptainer
           run: |
             git clone https://github.com/apptainer/apptainer.git
@@ -117,12 +113,6 @@ jobs:
             mkdir -p build
             gcc artifact/compiled_model.C \
                 -O3 \
-                -D RESOLUTION_NUM_FEATURES=12  \
-                -D RESOLUTION_NUM_OUTPUTS=9  \
-                -D RESOLUTION_NUM_RANDOM=128  \
-                -D COVARIANCE_NUM_FEATURES=15  \
-                -D COVARIANCE_NUM_OUTPUTS=15  \
-                -D COVARIANCE_NUM_RANDOM=128  \
                 -lm  \
                 --shared  \
                 -fPIC \
@@ -137,4 +127,21 @@ jobs:
           with:
             path: build/compiled_model.so
             name: trk-${{ matrix.arch }}-${{ matrix.compiler }}.so
+
+
+    release:
+        steps:
+          - name: Download artifact
+            uses: actions/download-artifact@v4
+            with:
+              path: ./artifact
+
+          - name: Create GitHub Release
+            uses: ncipollo/release-action@v1
+            with:
+              tag: ${{ github.ref_name }}
+              name: Release ${{ github.ref_name }}
+              bodyFile: pr_description.md
+              artifacts: artifact/*
+              artifactContentType: raw
 

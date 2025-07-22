@@ -441,7 +441,7 @@ rule deploy:
 
         
     output:
-        generated_c_file=smkstore("compiled_model.C", 's3models'),
+        generated_c_file=smkstore("compiled_model.c", 's3models'),
         generated_library=smkstore("compiled_model.so", 's3models'),
         report=report(
             smkstore("deploy.html", 's3reports'),
