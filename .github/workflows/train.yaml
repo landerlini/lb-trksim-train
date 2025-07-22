@@ -60,15 +60,27 @@ jobs:
       strategy:
         matrix:
           include:
-            #- runner: ubuntu-latest
-            #  arch: x86_64_v2
-            #  compiler: centos7-gcc9-opt 
-            #  container: /cvmfs/lhcb.cern.ch/containers/os-base/centos7-devel/prod/amd64
+            - runner: ubuntu-latest
+              arch: x86_64_v2
+              compiler: centos7-gcc9-opt 
+              container: /cvmfs/lhcb.cern.ch/containers/os-base/centos7-devel/prod/amd64
+
+            - runner: ubuntu-latest
+              arch: x86_64_v2
+              compiler: el9-gcc13-opt
+              container: /cvmfs/lhcb.cern.ch/containers/os-base/alma9-devel/prod/amd64/
+
+            - runner: ubuntu-latest
+              arch: x86_64_v2
+              compiler: el9-gcc13-dbg
+              container: /cvmfs/lhcb.cern.ch/containers/os-base/alma9-devel/prod/amd64/
 
             - runner: ubuntu-24.04-arm
-              arch: aarch64
-              compiler: el9-gcc13-opt
-              container: /cvmfs/lhcb.cern.ch/containers/os-base/centos7-devel/prod/aarch64
+              arch: armv8.1_a
+              compiler: el9-gcc13-opt 
+              container: /cvmfs/lhcb.cern.ch/containers/os-base/alma9-devel/prod/arm64v8/
+
+
 
       runs-on: ${{ matrix.runner }}
       
@@ -104,7 +116,7 @@ jobs:
 
             mkdir -p build
             gcc artifact/compiled_model.C \
-                ${{ matrix.optimization }} \
+                -O3 \
                 -D RESOLUTION_NUM_FEATURES=12  \
                 -D RESOLUTION_NUM_OUTPUTS=9  \
                 -D RESOLUTION_NUM_RANDOM=128  \
@@ -120,7 +132,7 @@ jobs:
                 ${{ matrix.container }} \
                 /bin/bash compile_cmd.sh
 
-        - name: Upload compiled shared object
+        - name: Upload trk-${{ matrix.arch }}-${{ matrix.compiler }}.so
           uses: actions/upload-artifact@v4
           with:
             path: build/compiled_model.so
