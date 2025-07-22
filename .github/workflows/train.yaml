@@ -6,16 +6,16 @@ on:
       - main
 
 jobs:
-    train-and-validate:
-        uses: ./.github/workflows/shared.yaml
-        with:
-            name: deploy
-            target: deploy
-            additional_profile: |
-                rerun-triggers: mtime
-        secrets:
-            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
-
+#    train-and-validate:
+#        uses: ./.github/workflows/shared.yaml
+#        with:
+#            name: deploy
+#            target: deploy
+#            additional_profile: |
+#                rerun-triggers: mtime
+#        secrets:
+#            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
+#
     upload_dot_c:
       runs-on: ubuntu-latest
       container: harbor.cloud.infn.it/unpacked/aiinfn-gha-runner:latest
@@ -142,17 +142,16 @@ jobs:
           - name: Install GitHub CLI
             run: sudo apt-get update && sudo apt-get install -y gh
 
-          - name: Authenticate GitHub CLI
+          - name: Fetch latest merged PR description
             env:
               GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            run: gh auth login --with-token <<< "$GH_TOKEN"
-
-          - name: Fetch latest merged PR description
             run: |
               gh pr list --state merged --limit 1 --json number,body \
                 --jq '.[0].body' > pr_description.md
 
           - name: Create GitHub Release
+            env:
+              GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             uses: ncipollo/release-action@v1
             with:
               tag: ${{ github.ref_name }}
