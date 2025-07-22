@@ -478,10 +478,10 @@ rule deploy:
 
 rule compress_dotC:
     input:
-        generated_c_file=smkstore("compiled_model.C", 's3models'),
+        generated_c_file=smkstore("compiled_model.c", 's3models'),
 
     output:
-        compressed_c="/tmp/compiled_model.C.xz", 
+        compressed_c="/tmp/compiled_model.c.xz", 
 
     shell: 
         """

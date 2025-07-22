@@ -50,8 +50,8 @@ jobs:
         - name: Upload compressed model
           uses: actions/upload-artifact@v4
           with:
-            name: compiled_model.C.xz
-            path: /tmp/compiled_model.C.xz
+            name: compiled_model.c.xz
+            path: /tmp/compiled_model.c.xz
 
     compile:
       needs: upload_dot_c
@@ -101,17 +101,17 @@ jobs:
         - name: Download artifact
           uses: actions/download-artifact@v4
           with:
-            name: compiled_model.C.xz
+            name: compiled_model.c.xz
             path: ./artifact
     
         - name: Compile for ${{ matrix.arch }}-${{ matrix.compiler }}
           run: |
             cat <<EOF > compile_cmd.sh
-            xz -d artifact/compiled_model.C.xz
+            xz -d artifact/compiled_model.c.xz
             source /cvmfs/lhcb.cern.ch/lib/LbEnv -c ${{ matrix.arch }}-${{ matrix.compiler }}
 
             mkdir -p build
-            gcc artifact/compiled_model.C \
+            gcc artifact/compiled_model.c \
                 -O3 \
                 -lm  \
                 --shared  \
