@@ -8,6 +8,8 @@ on:
 jobs:
     release-cycle:
         uses: ./.github/workflows/shared.yaml
+        permissions:
+          contents: write
         with:
             name: ${{ github.head_ref }}
             target: deploy
