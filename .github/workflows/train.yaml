@@ -6,20 +6,20 @@ on:
       - main
 
 jobs:
-    #run-workflow:
-    #    uses: ./.github/workflows/shared.yaml
-    #    with:
-    #        name: deploy
-    #        target: deploy
-    #        additional_profile: |
-    #            rerun-triggers: mtime
-    #    secrets:
-    #        SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
+    train-and-validate:
+        uses: ./.github/workflows/shared.yaml
+        with:
+            name: deploy
+            target: deploy
+            additional_profile: |
+                rerun-triggers: mtime
+        secrets:
+            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 
     upload_dot_c:
       runs-on: ubuntu-latest
       container: harbor.cloud.infn.it/unpacked/aiinfn-gha-runner:latest
-    #  needs: run-workflow
+      needs: train-and-validate
       steps:
         - name: Install missing libraries
           run: |
@@ -116,6 +116,7 @@ jobs:
                 -lm  \
                 --shared  \
                 -fPIC \
+                -std=c99 \
                 -o build/compiled_model.so  
             EOF
             apptainer exec -B/home -B/cvmfs -B/tmp  \
