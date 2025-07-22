@@ -114,7 +114,7 @@ jobs:
                 -fPIC \
                 -o build/compiled_model.so  
             EOF
-            apptainer exec -B/home -B/cvmfs -B/tmp \
+            apptainer exec -B/home -B/cvmfs -B/tmp --no-userns \
                 /cvmfs/lhcb.cern.ch/containers/os-base/centos7-devel/prod/amd64 \
                 /bin/bash compile_cmd.sh
 
