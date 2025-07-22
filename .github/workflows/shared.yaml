@@ -22,7 +22,7 @@ on:
             required: true
 
 jobs:
-  run-snakemake:
+  train-and-validate:
     runs-on: aiinfn-lamarrsim-gpu
     steps:
       - name: Checkout repository
@@ -79,7 +79,7 @@ jobs:
           path: ${{ input.generated_model_path }}
         
 
-  upload_dot_c:
+  compress-transpiled-c:
     runs-on: ubuntu-latest
     container: harbor.cloud.infn.it/unpacked/aiinfn-gha-runner:latest
     needs: train-and-validate
@@ -110,7 +110,7 @@ jobs:
 
 
   compile:
-    needs: upload_dot_c
+    needs: train-and-validate
     strategy:
       matrix:
         include:
