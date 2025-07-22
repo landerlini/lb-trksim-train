@@ -164,7 +164,7 @@ jobs:
             uses: ncipollo/release-action@v1
             with:
               tag: ${{ github.head_ref }}-${{ env.RELEASE_TIMESTAMP }}
-              name: Tracking models: ${{ github.head_ref }}-${{ env.RELEASE_TIMESTAMP }} 
+              name: "Tracking models `${{ github.head_ref }}-${{ env.RELEASE_TIMESTAMP }}`"
               bodyFile: pr_description.md
               artifacts: artifact/*/*.so,artifact/*/*.html
               artifactContentType: raw
