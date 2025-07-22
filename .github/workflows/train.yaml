@@ -17,9 +17,9 @@ jobs:
 #            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 #
     upload_dot_c:
-      #runs-on: ubuntu-latest
+      runs-on: ubuntu-latest
       container: harbor.cloud.infn.it/unpacked/aiinfn-gha-runner:latest
-      needs: train-and-validate
+      # needs: train-and-validate
       steps:
         - name: Install missing libraries
           run: |
