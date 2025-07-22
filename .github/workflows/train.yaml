@@ -16,128 +16,131 @@ jobs:
 #        secrets:
 #            SECRETS_YAML: ${{ secrets.STORAGE_SECRETS }}
 #
-    upload_dot_c:
-      runs-on: ubuntu-latest
-      container: harbor.cloud.infn.it/unpacked/aiinfn-gha-runner:latest
-      # needs: train-and-validate
-      steps:
-        - name: Install missing libraries
-          run: |
-            sudo apt-get update 
-            sudo apt-get install -y xz-utils
- 
-        - name: Checkout repository
-          uses: actions/checkout@v4
-
-        - name: Retrieve secrets
-          run: |
-              mkdir -p /tmp/artifacts
-              cat <<EOF > /tmp/artifacts/secrets.yaml
-              ${{ secrets.STORAGE_SECRETS }}
-              EOF
-
-        - name: compress_file
-          run: |
-              cd notebooks
-              export SNAKEMAKE_PROFILE=$PWD//workflow/profile/
-              snakemake compress_dotC \
-                --allowed-rules compress_dotC \
-                --jobs 1 \
-                --config secrets_file=/tmp/artifacts/secrets.yaml \
-                --rerun-incomplete \
-                --local-storage-prefix /tmp 
-                
-        - name: Upload compressed model
-          uses: actions/upload-artifact@v4
-          with:
-            name: compiled_model.c.xz
-            path: /tmp/compiled_model.c.xz
-
-    compile:
-      needs: upload_dot_c
-      # container: harbor.cloud.infn.it/unpacked/aiinfn-gha-runner:latest
-#      container: lhcbdev/centos7-build
-      strategy:
-        matrix:
-          include:
-            - runner: ubuntu-latest
-              arch: x86_64_v2
-              compiler: centos7-gcc9-opt 
-              container: /cvmfs/lhcb.cern.ch/containers/os-base/centos7-devel/prod/amd64
-
-            - runner: ubuntu-latest
-              arch: x86_64_v2
-              compiler: el9-gcc13-opt
-              container: /cvmfs/lhcb.cern.ch/containers/os-base/alma9-devel/prod/amd64/
-
-            - runner: ubuntu-latest
-              arch: x86_64_v2
-              compiler: el9-gcc13-dbg
-              container: /cvmfs/lhcb.cern.ch/containers/os-base/alma9-devel/prod/amd64/
-
-            - runner: ubuntu-24.04-arm
-              arch: armv8.1_a
-              compiler: el9-gcc13-opt 
-              container: /cvmfs/lhcb.cern.ch/containers/os-base/alma9-devel/prod/arm64v8/
-
-
-
-      runs-on: ${{ matrix.runner }}
-      
-      steps:
-        - name: Mount CVMFS
-          uses: cvmfs-contrib/github-action-cvmfs@v4
-
-        - name: Build apptainer
-          run: |
-            git clone https://github.com/apptainer/apptainer.git
-            cd apptainer
-            git checkout v1.4.1
-            ./mconfig --with-suid
-            make -C builddir
-            sudo make -C builddir install
-
- 
-        - name: Download artifact
-          uses: actions/download-artifact@v4
-          with:
-            name: compiled_model.c.xz
-            path: ./artifact
-    
-        - name: Compile for ${{ matrix.arch }}-${{ matrix.compiler }}
-          run: |
-            cat <<EOF > compile_cmd.sh
-            xz -d artifact/compiled_model.c.xz
-            source /cvmfs/lhcb.cern.ch/lib/LbEnv -c ${{ matrix.arch }}-${{ matrix.compiler }}
-
-            mkdir -p build
-            gcc artifact/compiled_model.c \
-                -O3 \
-                -lm  \
-                --shared  \
-                -fPIC \
-                -std=c99 \
-                -o build/compiled_model.so  
-            EOF
-            apptainer exec -B/home -B/cvmfs -B/tmp  \
-                ${{ matrix.container }} \
-                /bin/bash compile_cmd.sh
-
-        - name: Upload trk-${{ matrix.arch }}-${{ matrix.compiler }}.so
-          uses: actions/upload-artifact@v4
-          with:
-            path: build/compiled_model.so
-            name: trk-${{ matrix.arch }}-${{ matrix.compiler }}.so
+#     upload_dot_c:
+#       runs-on: ubuntu-latest
+#       container: harbor.cloud.infn.it/unpacked/aiinfn-gha-runner:latest
+#       # needs: train-and-validate
+#       steps:
+#         - name: Install missing libraries
+#           run: |
+#             sudo apt-get update 
+#             sudo apt-get install -y xz-utils
+#  
+#         - name: Checkout repository
+#           uses: actions/checkout@v4
+# 
+#         - name: Retrieve secrets
+#           run: |
+#               mkdir -p /tmp/artifacts
+#               cat <<EOF > /tmp/artifacts/secrets.yaml
+#               ${{ secrets.STORAGE_SECRETS }}
+#               EOF
+# 
+#         - name: compress_file
+#           run: |
+#               cd notebooks
+#               export SNAKEMAKE_PROFILE=$PWD//workflow/profile/
+#               snakemake compress_dotC \
+#                 --allowed-rules compress_dotC \
+#                 --jobs 1 \
+#                 --config secrets_file=/tmp/artifacts/secrets.yaml \
+#                 --rerun-incomplete \
+#                 --local-storage-prefix /tmp 
+#                 
+#         - name: Upload compressed model
+#           uses: actions/upload-artifact@v4
+#           with:
+#             name: compiled_model.c.xz
+#             path: /tmp/compiled_model.c.xz
+# 
+#     compile:
+#       needs: upload_dot_c
+#       # container: harbor.cloud.infn.it/unpacked/aiinfn-gha-runner:latest
+# #      container: lhcbdev/centos7-build
+#       strategy:
+#         matrix:
+#           include:
+#             - runner: ubuntu-latest
+#               arch: x86_64_v2
+#               compiler: centos7-gcc9-opt 
+#               container: /cvmfs/lhcb.cern.ch/containers/os-base/centos7-devel/prod/amd64
+# 
+#             - runner: ubuntu-latest
+#               arch: x86_64_v2
+#               compiler: el9-gcc13-opt
+#               container: /cvmfs/lhcb.cern.ch/containers/os-base/alma9-devel/prod/amd64/
+# 
+#             - runner: ubuntu-latest
+#               arch: x86_64_v2
+#               compiler: el9-gcc13-dbg
+#               container: /cvmfs/lhcb.cern.ch/containers/os-base/alma9-devel/prod/amd64/
+# 
+#             - runner: ubuntu-24.04-arm
+#               arch: armv8.1_a
+#               compiler: el9-gcc13-opt 
+#               container: /cvmfs/lhcb.cern.ch/containers/os-base/alma9-devel/prod/arm64v8/
+# 
+# 
+# 
+#       runs-on: ${{ matrix.runner }}
+#       
+#       steps:
+#         - name: Mount CVMFS
+#           uses: cvmfs-contrib/github-action-cvmfs@v4
+# 
+#         - name: Build apptainer
+#           run: |
+#             git clone https://github.com/apptainer/apptainer.git
+#             cd apptainer
+#             git checkout v1.4.1
+#             ./mconfig --with-suid
+#             make -C builddir
+#             sudo make -C builddir install
+# 
+#  
+#         - name: Download artifact
+#           uses: actions/download-artifact@v4
+#           with:
+#             name: compiled_model.c.xz
+#             path: ./artifact
+#     
+#         - name: Compile for ${{ matrix.arch }}-${{ matrix.compiler }}
+#           run: |
+#             cat <<EOF > compile_cmd.sh
+#             xz -d artifact/compiled_model.c.xz
+#             source /cvmfs/lhcb.cern.ch/lib/LbEnv -c ${{ matrix.arch }}-${{ matrix.compiler }}
+# 
+#             mkdir -p build
+#             gcc artifact/compiled_model.c \
+#                 -O3 \
+#                 -lm  \
+#                 --shared  \
+#                 -fPIC \
+#                 -std=c99 \
+#                 -o build/compiled_model.so  
+#             EOF
+#             apptainer exec -B/home -B/cvmfs -B/tmp  \
+#                 ${{ matrix.container }} \
+#                 /bin/bash compile_cmd.sh
+# 
+#         - name: Upload trk-${{ matrix.arch }}-${{ matrix.compiler }}.so
+#           uses: actions/upload-artifact@v4
+#           with:
+#             path: build/compiled_model.so
+#             name: trk-${{ matrix.arch }}-${{ matrix.compiler }}.so
 
 
     release:
         runs-on: ubuntu-latest
-        needs: compile
+        # needs: compile
         steps:
           - name: Download artifact
             uses: actions/download-artifact@v4
             with:
               path: ./artifact
+
+          - name: Checkout repository
+            uses: actions/checkout@v4
 
           - name: Install GitHub CLI
             run: sudo apt-get update && sudo apt-get install -y gh
