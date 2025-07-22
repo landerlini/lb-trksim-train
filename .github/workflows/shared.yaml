@@ -13,6 +13,10 @@ on:
         required: false
         default: ""
 
+      generated_model_path:
+        type: string
+        required: true
+
     secrets:
         SECRETS_YAML:
             required: true
@@ -66,6 +70,13 @@ jobs:
                   gpu: 1
 
                 ${{ inputs.additional_profile }}
+
+        
+      - name: Upload raw model
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled_model.c
+          path: ${{ input.generated_model_path }}
         
 
   upload_dot_c:
@@ -81,29 +92,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Retrieve secrets
-        run: |
-            mkdir -p /tmp/artifacts
-            cat <<EOF > /tmp/artifacts/secrets.yaml
-            ${{ secrets.STORAGE_SECRETS }}
-            EOF
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled_model.c
+          path: ./artifact
 
-      - name: compress_file
+      - name: Compress file
         run: |
-            cd notebooks
-            export SNAKEMAKE_PROFILE=$PWD//workflow/profile/
-            snakemake compress_dotC \
-              --allowed-rules compress_dotC \
-              --jobs 1 \
-              --config secrets_file=/tmp/artifacts/secrets.yaml \
-              --rerun-incomplete \
-              --local-storage-prefix /tmp 
+            xz -9e -T0 -c -k $(find ./artifact | grep .c) > compiled_model.c.xz
               
       - name: Upload compressed model
         uses: actions/upload-artifact@v4
         with:
           name: compiled_model.c.xz
-          path: /tmp/compiled_model.c.xz
+          path: ./compiled_model.c.xz
+
 
   compile:
     needs: upload_dot_c
@@ -148,16 +152,15 @@ jobs:
           sudo make -C builddir install
 
 
-      - name: Download artifact
+      - name: Download transpiled model (uncompressed)
         uses: actions/download-artifact@v4
         with:
-          name: compiled_model.c.xz
+          name: compiled_model.c
           path: ./artifact
   
       - name: Compile for ${{ matrix.arch }}-${{ matrix.compiler }}
         run: |
           cat <<EOF > compile_cmd.sh
-          xz -d artifact/compiled_model.c.xz
           source /cvmfs/lhcb.cern.ch/lib/LbEnv -c ${{ matrix.arch }}-${{ matrix.compiler }}
 
           mkdir -p build
@@ -218,7 +221,7 @@ jobs:
             tag: ${{ inputs.name }}-${{ env.RELEASE_TIMESTAMP }}
             name: "Tracking models `${{ inputs.name }}-${{ env.RELEASE_TIMESTAMP }}`"
             bodyFile: pr_description.md
-            artifacts: artifact/*/*.so,artifact/*/*.html
+            artifacts: artifact/*/*.so,artifact/*/*.html,artifact/*/*.xz
             artifactContentType: raw
 
 
