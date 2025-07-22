@@ -63,10 +63,12 @@ jobs:
             #- runner: ubuntu-latest
             #  arch: x86_64_v2
             #  compiler: centos7-gcc9-opt 
+            #  container: /cvmfs/lhcb.cern.ch/containers/os-base/centos7-devel/prod/amd64
 
             - runner: ubuntu-24.04-arm
               arch: aarch64
               compiler: el9-gcc13-opt
+              container: /cvmfs/lhcb.cern.ch/containers/os-base/centos7-devel/prod/aarch64
 
       runs-on: ${{ matrix.runner }}
       
@@ -115,7 +117,7 @@ jobs:
                 -o build/compiled_model.so  
             EOF
             apptainer exec -B/home -B/cvmfs -B/tmp  \
-                /cvmfs/lhcb.cern.ch/containers/os-base/centos7-devel/prod/amd64 \
+                ${{ matrix.container }} \
                 /bin/bash compile_cmd.sh
 
         - name: Upload compiled shared object
