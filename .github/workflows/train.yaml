@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-    train-and-validate:
+    release-cycle:
         uses: ./.github/workflows/shared.yaml
         with:
             name: ${{ github.head_ref }}

@@ -76,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compiled_model.c
-          path: ${{ input.generated_model_path }}
+          path: ${{ inputs.generated_model_path }}
         
 
   compress-transpiled-c:
