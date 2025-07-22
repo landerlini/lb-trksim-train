@@ -115,7 +115,7 @@ jobs:
                 --shared  \
                 -fPIC \
                 -std=c99 \
-                -o build/compiled_model.so  
+                -o build/trk-${{ matrix.arch }}-${{ matrix.compiler }}.so
             EOF
             apptainer exec -B/home -B/cvmfs -B/tmp  \
                 ${{ matrix.container }} \
@@ -124,8 +124,8 @@ jobs:
         - name: Upload trk-${{ matrix.arch }}-${{ matrix.compiler }}
           uses: actions/upload-artifact@v4
           with:
-            path: build/compiled_model.so
-            name: trk-${{ matrix.arch }}-${{ matrix.compiler }}
+            path: build/trk-${{ matrix.arch }}-${{ matrix.compiler }}.so
+            name: ${{ matrix.arch }}-${{ matrix.compiler }}
 
     release:
         runs-on: ubuntu-latest
