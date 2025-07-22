@@ -124,5 +124,5 @@ jobs:
           uses: actions/upload-artifact@v4
           with:
             path: build/compiled_model.so
-            name: trk-${{ matrix.runner }}-${{ matrix.container }}${{ matrix.optimization }}.so
+            name: trk-${{ matrix.arch }}-${{ matrix.compiler }}.so
 
