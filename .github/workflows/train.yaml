@@ -10,6 +10,7 @@ jobs:
         uses: LamarrSim/release-models/.github/workflows/release.yaml@main
         permissions:
           contents: write
+          pull-requests: write
         with:
             snakemake_dir: notebooks
             name: ${{ github.head_ref }}
