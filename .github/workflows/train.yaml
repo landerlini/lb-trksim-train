@@ -7,10 +7,11 @@ on:
 
 jobs:
     release-cycle:
-        uses: ./.github/workflows/shared.yaml
+        uses: LamarrSim/release-models/.github/workflows/release.yaml
         permissions:
           contents: write
         with:
+            snakemake_dir: notebooks
             name: ${{ github.head_ref }}
             target: deploy validate_acceptance validate_efficiency validate_resolution validate_covariance
             additional_profile: |
