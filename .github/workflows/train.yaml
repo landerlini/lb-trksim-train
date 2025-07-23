@@ -7,7 +7,7 @@ on:
 
 jobs:
     release-cycle:
-        uses: LamarrSim/release-models/.github/workflows/release.yaml
+        uses: LamarrSim/release-models/.github/workflows/release.yaml@main
         permissions:
           contents: write
         with:
