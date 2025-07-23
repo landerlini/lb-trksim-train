@@ -84,7 +84,7 @@ rule preprocessing:
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
         --ExecutePreprocessor.kernel_name=python3 \
-        --no-input --no-prompt \
+        --no-prompt \
         {input.notebook} --output {log}
         """
 
@@ -120,7 +120,7 @@ rule train_acceptance:
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
         --ExecutePreprocessor.kernel_name=python3 \
-        --no-input --no-prompt  \
+        --no-prompt  \
         {input.notebook} --output {log}
         """
 
@@ -153,7 +153,7 @@ rule validate_acceptance:
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
         --ExecutePreprocessor.kernel_name=python3 \
-        --no-input --no-prompt --allow-errors  \
+        --no-prompt --allow-errors  \
         {input.notebook} --output {log}
         """
 
@@ -189,7 +189,7 @@ rule train_efficiency:
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
         --ExecutePreprocessor.kernel_name=python3 \
-        --no-input --no-prompt  \
+        --no-prompt  \
         {input.notebook} --output {log}
         """
 
@@ -222,7 +222,7 @@ rule validate_efficiency:
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
         --ExecutePreprocessor.kernel_name=python3 \
-        --no-input --no-prompt --allow-errors  \
+        --no-prompt --allow-errors  \
         {input.notebook} --output {log}
         """
 
@@ -276,7 +276,7 @@ rule preprocessing_gans:
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
         --ExecutePreprocessor.kernel_name=python3 \
-        --no-input --no-prompt   \
+        --no-prompt   \
         {input.notebook} --output {log}
         """
         
@@ -312,7 +312,7 @@ rule train_resolution:
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
         --ExecutePreprocessor.kernel_name=python3 \
-        --no-input --no-prompt  \
+        --no-prompt  \
         {input.notebook} --output {log}
         """
 
@@ -349,7 +349,7 @@ rule validate_resolution:
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
         --ExecutePreprocessor.kernel_name=python3 \
-        --no-input --no-prompt --allow-errors  \
+        --no-prompt --allow-errors  \
         {input.notebook} --output {log}
         """
 
@@ -384,7 +384,7 @@ rule train_covariance:
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
         --ExecutePreprocessor.kernel_name=python3 \
-        --no-input --no-prompt  \
+        --no-prompt  \
         {input.notebook} --output {log}
         """
 
@@ -421,7 +421,7 @@ rule validate_covariance:
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
         --ExecutePreprocessor.kernel_name=python3 \
-        --no-input --no-prompt --allow-errors  \
+        --no-prompt --allow-errors  \
         {input.notebook} --output {log}
         """
 
@@ -472,7 +472,7 @@ rule deploy:
         jupyter nbconvert --to html --execute \
         --ExecutePreprocessor.timeout=-1 \
         --ExecutePreprocessor.kernel_name=python3 \
-        --no-input --no-prompt  \
+        --no-prompt  \
         {input.notebook} --output {log.report}
         """
 

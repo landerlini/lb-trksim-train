@@ -12,7 +12,7 @@ jobs:
           contents: write
         with:
             name: ${{ github.head_ref }}
-            target: deploy
+            target: deploy validate_acceptance validate_efficiency validate_resolution validate_covariance
             additional_profile: |
                 rerun-triggers: mtime
             generated_model_path: /tmp/s3models/lamarr-train/models/compiled_model.c
