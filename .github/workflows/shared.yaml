@@ -100,7 +100,7 @@ jobs:
 
       - name: Compress file
         run: |
-            xz -9e -T0 -c -k $(find ./artifact | grep .c) > compiled_model.c.xz
+            xz -9e -T0 -c -k "$(find ./artifact -type f -name '*.c' | head -n 1)" > compiled_model.c.xz
               
       - name: Upload compressed model
         uses: actions/upload-artifact@v4
