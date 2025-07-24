@@ -1,1 +1,13 @@
 secrets_file: "secrets.yaml"
+
+training_data:
+    - training-data/j100/tuple-0.root
+    - training-data/j100/tuple-1.root
+    - training-data/j100/tuple-2.root
+    - training-data/j100/tuple-3.root
+    - training-data/j100/tuple-4.root
+    - training-data/j100/tuple-5.root
+    - training-data/j100/tuple-6.root
+    - training-data/j100/tuple-7.root
+    - training-data/j100/tuple-8.root
+    - training-data/j100/tuple-9.root
