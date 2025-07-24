@@ -196,12 +196,6 @@ jobs:
           with:
             path: ./artifact
 
-        - name: Download artifact
-          run: |
-            mkdir -p artifact/test
-            echo "test" > artifact/test/test.so
-
-
         - name: Install GitHub CLI
           run: sudo apt-get update && sudo apt-get install -y gh
 
