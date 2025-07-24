@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-    release-cycle:
+    trk-2016MagUp-Sim10b:
         uses: LamarrSim/release-models/.github/workflows/release.yaml@main
         permissions:
           contents: write
@@ -15,6 +15,9 @@ jobs:
             snakemake_dir: notebooks
             name: ${{ github.head_ref }}
             target: deploy validate_acceptance validate_efficiency validate_resolution validate_covariance
+            additional_config: |
+                training_data:
+                    - training-data/2016MU-sim10b/LamarrTraining.root
             additional_profile: |
                 rerun-triggers: mtime
             generated_model_path: /tmp/s3models/lamarr-train/models/compiled_model.c
