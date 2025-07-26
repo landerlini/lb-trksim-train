@@ -1,4 +1,5 @@
 *.swp
+**/secrets.yaml
 *.swo
 *.html
 *.log

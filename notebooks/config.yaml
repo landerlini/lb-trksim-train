@@ -1,0 +1,4 @@
+secrets_file: "secrets.yaml"
+
+training_data:
+    - training-data/2016MU-sim10b/LamarrTraining.root
