@@ -12,8 +12,8 @@ jobs:
           contents: write
           pull-requests: write
         with:
+            name: pp-2016-MU-Sim10b
             snakemake_dir: notebooks
-            name: ${{ github.head_ref }}
             target: deploy validate_acceptance validate_efficiency validate_resolution validate_covariance
             additional_config: |
                 training_data:
